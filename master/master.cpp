@@ -640,7 +640,7 @@ int Master::mapCia402(uint16_t slaveNr)
 void Master::setPreOp(int slaveNr)
 {
     printf("Configuring slave %d : %s id : 0x%x\n", slaveNr, ec_slave[slaveNr].name, ec_slave[slaveNr].eep_id);
-    if (strcmp(ec_slave[slaveNr].name, "CMMT-AS") == 0 || strcmp(ec_slave[slaveNr].name, "CMMT-ST") == 0 ||// check if name is correct for all types of CMMT (not always reliable)
+    if (strcmp(ec_slave[slaveNr].name, "CMMT-AS") == 0 || strcmp(ec_slave[slaveNr].name, "CMMT-ST") == 0 || strcmp(ec_slave[slaveNr].name, "FestoCMMT") == 0 ||// check if name is correct for all types of CMMT (not always reliable)
         ec_slave[slaveNr].eep_id == 0x7b5a25 || 0x7b1a95 == ec_slave[slaveNr].eep_id) // Or based on ID
     {
         mapCia402(slaveNr);
