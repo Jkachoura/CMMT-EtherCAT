@@ -236,7 +236,7 @@ int main(int argc, char *argv[])
    else
    {
       printf("Usage: simple_test ifname1\nifname = eth0 for example\n");
-      char test[] = "\\Device\\NPF_{DEA85026-34BA-4C8B-9840-A3CE7793A348}";
+      char test[] = "\\Device\\NPF_{A00D620E-09CB-4317-9A0F-4DAAD76B366E}";
       simpletest(test);
    }
 

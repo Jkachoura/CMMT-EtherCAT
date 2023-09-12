@@ -2,7 +2,7 @@
 
 int main(int argc, char* argv[])
 {
-    char ifaceName[] = "\\Device\\NPF_{DEA85026-34BA-4C8B-9840-A3CE7793A348}"; // Your network interface name here
+    char ifaceName[] = "\\Device\\NPF_{A00D620E-09CB-4317-9A0F-4DAAD76B366E}"; // Your network interface name here
 
     Master ecMaster(ifaceName, 8000); // 8000 = 8 ms cycle time
 

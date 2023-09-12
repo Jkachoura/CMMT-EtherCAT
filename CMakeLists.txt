@@ -13,11 +13,11 @@ set(BUILD_TESTS TRUE)
 
 if(WIN32)
   set(OS "win32")
-  include_directories(oshw/win32/wpcap/Include)
+  include_directories(include/oshw/win32/wpcap/Include)
   if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-    link_directories(${CMAKE_CURRENT_LIST_DIR}/oshw/win32/wpcap/Lib/x64)
+    link_directories(${CMAKE_CURRENT_LIST_DIR}/include/oshw/win32/wpcap/Lib/x64)
   elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
-    link_directories(${CMAKE_CURRENT_LIST_DIR}/oshw/win32/wpcap/Lib)
+    link_directories(${CMAKE_CURRENT_LIST_DIR}/include/oshw/win32/wpcap/Lib)
   endif()
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /D _CRT_SECURE_NO_WARNINGS")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  /WX")
@@ -35,8 +35,8 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "rt-kernel")
   set(OS "rtk")
   message("ARCH is ${ARCH}")
   message("BSP is ${BSP}")
-  include_directories(oshw/${OS}/${ARCH})
-  file(GLOB OSHW_EXTRA_SOURCES oshw/${OS}/${ARCH}/*.c)
+  include_directories(include/oshw/${OS}/${ARCH})
+  file(GLOB OSHW_EXTRA_SOURCES include/oshw/${OS}/${ARCH}/*.c)
   set(OSHW_SOURCES "${OS_HW_SOURCES} ${OSHW_ARCHSOURCES}")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Werror")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-but-set-variable")
@@ -52,13 +52,13 @@ endif()
 
 message("OS is ${OS}")
 
-file(GLOB SOEM_SOURCES soem/*.c)
-file(GLOB OSAL_SOURCES osal/${OS}/*.c)
-file(GLOB OSHW_SOURCES oshw/${OS}/*.c)
+file(GLOB SOEM_SOURCES include/soem/*.c)
+file(GLOB OSAL_SOURCES include/osal/${OS}/*.c)
+file(GLOB OSHW_SOURCES include/oshw/${OS}/*.c)
 
-file(GLOB SOEM_HEADERS soem/*.h)
-file(GLOB OSAL_HEADERS osal/osal.h osal/${OS}/*.h)
-file(GLOB OSHW_HEADERS oshw/${OS}/*.h)
+file(GLOB SOEM_HEADERS include/soem/*.h)
+file(GLOB OSAL_HEADERS include/osal/osal.h osal/${OS}/*.h)
+file(GLOB OSHW_HEADERS include/oshw/${OS}/*.h)
 
 add_library(soem STATIC
   ${SOEM_SOURCES}
@@ -68,19 +68,19 @@ add_library(soem STATIC
 target_link_libraries(soem ${OS_LIBS})
 
 target_include_directories(soem PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/soem>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include/soem>
   $<INSTALL_INTERFACE:include/soem>)
 
 target_include_directories(soem PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/osal>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include/osal>
   $<INSTALL_INTERFACE:include/soem>)
 
 target_include_directories(soem PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/osal/${OS}>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include/osal/${OS}>
   $<INSTALL_INTERFACE:include/soem>)
 
 target_include_directories(soem
-  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/oshw/${OS}>
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include/oshw/${OS}>
   $<INSTALL_INTERFACE:include/soem>
   )
 
@@ -97,9 +97,9 @@ install(FILES
   DESTINATION ${SOEM_INCLUDE_INSTALL_DIR})
 
 if(BUILD_TESTS) 
-  add_subdirectory(test/linux/slaveinfo)
-  add_subdirectory(test/linux/eepromtool)
-  add_subdirectory(test/linux/simple_test)
+  add_subdirectory(include/test/linux/slaveinfo)
+  add_subdirectory(include/test/linux/eepromtool)
+  add_subdirectory(include/test/linux/simple_test)
 endif()
 
 add_subdirectory("master")
