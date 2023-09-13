@@ -525,25 +525,13 @@ int Master::setMode(int slaveNr, uint8_t mode)
     return mode;
 }
 
-int Master::mapCia402(uint16_t slaveNr)
-{
-    if (verbose)printf("Doing Cia402 configuration for Slave %d\n",slaveNr);
-    uint32_t value;
-    float32 valuefloat;
-    uint16_t index, value16;
-    uint8_t value8, subindex; 
-    int valueSize, i = 0, retval = 0;
-    bool ca;
-    
-    // Everything cycle time related (should be checked)
-    index = 0x212E; // manufacturer specific cycle time float32
-    subindex = 2; // manufacturer specific cycle time float32
-    valuefloat = (float32)this->ctime / 1000000; // floating value cycle time in seconds
-    valueSize = sizeof(valuefloat);
-    ca = false;
-    retval += ec_SDOwrite(slaveNr, index, subindex, ca, valueSize, &valuefloat, EC_TIMEOUTRXM); i++;
-    
-    
+/**
+ * Cia402 configuration for Festo CMMT-AS and CMMT-ST
+ *
+ * @param slaveNr Slave number
+ * @return retval Number of successful writes
+ */
+int Master::mapCia402(uint16_t slaveNr){
     // does not work in ca or not ca
     /*
     index = 0x1c32;
@@ -557,83 +545,67 @@ int Master::mapCia402(uint16_t slaveNr)
     printf("s%d v%d i%d r%d", slaveNr, value, i, retval);
     if ( i != retval ) printf("Writing cycle time to slave %d failed %d %d\n",slaveNr, i, retval);
     */
-
-    // Step set Input PDOs 
-    const uint8_t pdoOutputLength = 9;
-    uint32_t pdoOutput[pdoOutputLength] = { 0x60400010,0x60600008,0x607a0020,0x60810020,0x60ff0020,0x60710010,0x60b10020,0x60b20010,0x00000008 };
-
-    index = 0x1600;
-    subindex = 1;
-    valueSize = sizeof(pdoOutput);
-    ca = true; // write multiple values in complete acces mode
-    retval += ec_SDOwrite(slaveNr, index, subindex, ca, valueSize, &pdoOutput, EC_TIMEOUTRXM);
-    i++;
-
-    // Write amount of parameters for output
-    subindex = 0;
-    value = pdoOutputLength;
-    valueSize = sizeof(pdoOutputLength);
-    ca = false; // write single value
-    retval += ec_SDOwrite(slaveNr, index, subindex, false, valueSize, &value, EC_TIMEOUTRXM);
-    i++;
-
-    // Step set Output PDOs
-    const uint8_t pdoInputLength = 7;
-    uint32_t pdoInput[pdoInputLength] = { 0x60410010,0x60610008,0x60640020,0x606c0020,0x60770010,0x21940520,0x00000008 };
-
-    index = 0x1a00;
-    subindex = 1;
-    valueSize = sizeof(pdoInput);
-    ca = true; // write multiple values in complete acces mode
-    retval += ec_SDOwrite(slaveNr, index, subindex, ca, valueSize, &pdoInput, EC_TIMEOUTRXM);
-    i++;
-
-    // Write amount of parameters for input
-    subindex = 0;
-    value = pdoInputLength;
-    valueSize = sizeof(pdoInputLength);
-    ca = false; // write single value
-    retval += ec_SDOwrite(slaveNr, index, subindex, false, valueSize, &value, EC_TIMEOUTRXM);
-    i++;
-
-    // Conform Jurgen Seymoutir explination
-    // Step 1
-    index = 0x1c12;
-    subindex = 1;
-    value16 = 0x1600;
-    valueSize = sizeof(value16);
-    ca = false; // write single value
-    retval += ec_SDOwrite(slaveNr, index, subindex, ca, valueSize, &value16, EC_TIMEOUTRXM);
-    i++;
-
-    // Step 2
-    index = 0x1c13;
-    subindex = 1;
-    value16 = 0x1a00;
-    valueSize = sizeof(value16);
-    ca = false; // write single value
-    retval += ec_SDOwrite(slaveNr, index, subindex, ca, valueSize, &value16, EC_TIMEOUTRXM);
-    i++;
-
-    // Step 3
-    index = 0x1c12;
-    subindex = 0;
-    value8 = 0x01;
-    valueSize = sizeof(value8);
-    ca = false; // write single value
-    retval += ec_SDOwrite(slaveNr, index, subindex, ca, valueSize, &value8, EC_TIMEOUTRXM);
-    i++;
-
-    // Step 4
-    index = 0x1c13;
-    subindex = 0;
-    value8 = 0x01;
-    valueSize = sizeof(value8);
-    retval += ec_SDOwrite(slaveNr, index, subindex, ca, valueSize, &value8, EC_TIMEOUTRXM);
-    i++;
+    if (verbose){ 
+        printf("Doing Cia402 configuration for Slave %d\n", slaveNr);
+    }
     
-    if (verbose)puts("Done mapping drive");
-    if (retval < i)("Check PDO mapping on slave %d\n", slaveNr);
+    int retval = 0;
+    // Complete Access if true write multiple values in one go, false one value at a time
+    bool ca = false; 
+
+    // floating value cycle time in seconds
+    float32 ctimeInSeconds = (float32)this->ctime / 1000000;
+
+    // PDO output
+    uint8_t pdoOutputLength = 9; 
+    uint32_t pdoOutput[9] = {0x60400010, 0x60600008, 0x607a0020,
+                             0x60810020, 0x60ff0020, 0x60710010,
+                             0x60b10020, 0x60b20010, 0x00000008};
+
+    // PDO input
+    uint8_t pdoInputLength = 9;
+    uint32_t pdoInput[7] = {0x60410010, 0x60610008, 0x60640020,
+                            0x606c0020, 0x60770010, 0x21940520,
+                            0x00000008 };
+
+    
+    // Valus for confirming Jurgen Seymoutir explination
+    uint16_t value16_1 = 0x1600; 
+    uint16_t value16_2 = 0x1a00; 
+    uint8_t value8 = 0x01;
+
+    struct {
+        uint16_t index;
+        uint8_t subindex;
+        int valueSize;
+        void* value;
+        bool ca;
+    } configSteps[] = {
+        {0x212E, 2, sizeof(ctimeInSeconds), &ctimeInSeconds, false}, // Everything cycle time related (should be checked)
+        {0x1600, 1, sizeof(pdoOutput), pdoOutput, true}, // Step set Output PDOs
+        {0x1600, 0, sizeof(pdoOutputLength), &pdoOutputLength, false},  // Write amount of parameters for output
+        {0x1a00, 1, sizeof(pdoInput), pdoInput, true}, // Step set Input PDOs 
+        {0x1a00, 0, sizeof(pdoInputLength), &pdoInputLength, false}, // Write amount of parameters for input
+        {0x1c12, 1, sizeof(value16_1), &value16_1, false}, // Step 1 confirming Jurgen Seymoutir explination
+        {0x1c13, 1, sizeof(value16_2), &value16_2, false},// Step 2 
+        {0x1c12, 0, sizeof(value8), &value8, false}, // Step 3
+        {0x1c13, 0, sizeof(value8), &value8, false} // Step 4
+    };
+
+    int i = 0;
+    // Loop through all steps and write them to the slave
+    for (i = 0; i < sizeof(configSteps) / sizeof(configSteps[0]); i++) {
+        retval += ec_SDOwrite(slaveNr, configSteps[i].index, configSteps[i].subindex,
+                                  configSteps[i].ca, configSteps[i].valueSize,
+                                  configSteps[i].value, EC_TIMEOUTRXM);
+    }
+
+    if (verbose) puts("Done mapping drive");
+
+    if (retval < i) {
+        printf("Check PDO mapping on slave %d\n", slaveNr);
+    }
+
     return retval;
 }
 
