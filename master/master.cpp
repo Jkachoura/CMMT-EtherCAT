@@ -210,7 +210,7 @@ void Master::waitCycle(){
     std::this_thread::sleep_for(std::chrono::microseconds(this->ctime));
 }
 
-int Master::enable(int slaveNr){
+int Master::enable_powerstage(int slaveNr){
     unsigned int timeout = 1000000;
     if (verbose)printf("Start Enabling Drive %d\n", slaveNr);
     if (reset(slaveNr) == EXIT_SUCCESS){
@@ -242,7 +242,7 @@ int Master::enable(int slaveNr){
     }
 }
 
-int Master::disable(int slaveNr){
+int Master::disable_powerstage(int slaveNr){
     unsigned int timeout = 1000;
     unsetBit(slaveNr, control_enable_operation);
     unsetBit(slaveNr, control_switch_on);
@@ -262,7 +262,7 @@ int Master::disable(int slaveNr){
     
 }
 
-int Master::home(int slaveNr, bool always){   
+int Master::referencing_task(int slaveNr, bool always){   
     if (readyState(slaveNr)){
         setMode(slaveNr, homing_mode);
         if (getBit(slaveNr, status_ref) && !always){
@@ -282,31 +282,64 @@ int Master::home(int slaveNr, bool always){
     return -1;
 }
 
-void Master::jogPos(int slaveNr){
-    if (verbose)puts("Begin jog in positive direction");
-    if (readyState(slaveNr)){
-        uint8_t controlbyte;
-        controlbyte = setMode(slaveNr, jog_mode);
+// void Master::jogPos(int slaveNr){
+//     if (verbose)puts("Begin jog in positive direction");
+//     if (readyState(slaveNr)){
+//         uint8_t controlbyte;
+//         controlbyte = setMode(slaveNr, jog_mode);
+//         unsetControl(slaveNr);
+//         while (!getBit(slaveNr, status_mc));
+//         controlbyte = setBit(slaveNr, control_4);
+//     }
+//     else printf("Jogging not possible slave %d not enabled\n ", slaveNr);
+// }
+
+// void Master::jogNeg(int slaveNr){
+//     puts("Begin jog in negative direction");
+//     if (readyState(slaveNr)){
+//         uint8_t controlbyte;
+//         controlbyte = setMode(slaveNr, jog_mode);
+//         unsetControl(slaveNr);
+//         while (!getBit(slaveNr, status_mc));
+//         controlbyte = setBit(slaveNr, control_5);
+//     }
+//     else printf("Jogging not possible slave %d not enabled\n ", slaveNr);
+// }
+
+void Master::jog_task(int slaveNr, bool jog_positive, bool jog_negative, float duration) {
+    if (jog_positive && jog_negative) {
+        printf("Both positive and negative jog requested. Please choose one direction.\n");
+        return;
+    }
+
+    if (readyState(slaveNr)) {
+        uint8_t controlBit;
+        if (jog_positive) {
+            printf("Begin jog in positive direction\n");
+            controlBit = control_4;
+        } else if (jog_negative) {
+            printf("Begin jog in negative direction\n");
+            controlBit = control_5;
+        } else {
+            printf("No jog direction specified. Please specify either positive or negative jog.\n");
+            return;
+        }
+
+        uint8_t controlbyte = setMode(slaveNr, jog_mode);
         unsetControl(slaveNr);
         while (!getBit(slaveNr, status_mc));
-        controlbyte = setBit(slaveNr, control_4);
+        controlbyte = setBit(slaveNr, controlBit);
+        if (duration > 0) {
+            std::this_thread::sleep_for(std::chrono::milliseconds((int) (duration * 1000)));
+            stop_motion_task(slaveNr);
+        }
+    } else {
+        printf("Jogging not possible, slave %d not enabled\n", slaveNr);
     }
-    else printf("Jogging not possible slave %d not enabled\n ", slaveNr);
 }
 
-void Master::jogNeg(int slaveNr){
-    puts("Begin jog in negative direction");
-    if (readyState(slaveNr)){
-        uint8_t controlbyte;
-        controlbyte = setMode(slaveNr, jog_mode);
-        unsetControl(slaveNr);
-        while (!getBit(slaveNr, status_mc));
-        controlbyte = setBit(slaveNr, control_5);
-    }
-    else printf("Jogging not possible slave %d not enabled\n ", slaveNr);
-}
 
-void Master::jogStop(int slaveNr){
+void Master::stop_motion_task(int slaveNr){
     if (verbose)printf("Stopping Jog movement\n");
     if (readyState(slaveNr)){
         unsetControl(slaveNr);
@@ -314,7 +347,7 @@ void Master::jogStop(int slaveNr){
     }
 }
 
-int Master::movePosition(int slaveNr, int32_t target, bool relative){
+int Master::position_task(int slaveNr, int32_t target, bool relative){
     /*Precondition for positioning mode
         The following conditions must be fulfilled for positioning mode :
     – Modes of operation display(0x6061) = 1
@@ -355,21 +388,21 @@ int Master::movePosition(int slaveNr, int32_t target, bool relative){
     return EXIT_FAILURE;
 }
 
-int Master::movePosition(int slaveNr, int32_t target, int32_t velocity, bool relative){
+int Master::position_task(int slaveNr, int32_t target, int32_t velocity, bool relative){
     setProfileVelocity(slaveNr, velocity);
     if (velocity < 0) {
         printf("ERROR : Slave %d Velocity should be a positive number in positioning mode\n", slaveNr);
         return -1;
     }
-    else return movePosition(slaveNr, target, relative);
+    else return position_task(slaveNr, target, relative);
 }
 
-int Master::movePosition(int slaveNr, int32_t target, uint32_t velocity, bool relative){
+int Master::position_task(int slaveNr, int32_t target, uint32_t velocity, bool relative){
     setProfileVelocity(slaveNr, velocity);
-    return movePosition(slaveNr, target, relative);
+    return position_task(slaveNr, target, relative);
 }
 
-int Master::movePosition(int slaveNr, int32_t target, uint32_t velocity, uint32_t acceleration, uint32_t deceleration, bool relative){
+int Master::position_task(int slaveNr, int32_t target, uint32_t velocity, uint32_t acceleration, uint32_t deceleration, bool relative){
     auto retval = 0;
     // writing acceleration
     retval += ec_SDOwrite(slaveNr, 0x6083, 0, false, sizeof(acceleration), &acceleration, EC_TIMEOUTRXM);
@@ -378,7 +411,7 @@ int Master::movePosition(int slaveNr, int32_t target, uint32_t velocity, uint32_
     retval += ec_SDOwrite(slaveNr, 0x6084, 0, false, sizeof(deceleration), &deceleration, EC_TIMEOUTRXM);
 
     if (retval == 2){
-        retval = movePosition(slaveNr, target, velocity, relative);
+        retval = position_task(slaveNr, target, velocity, relative);
         return retval;
     }
     else{

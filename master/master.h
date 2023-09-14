@@ -86,16 +86,17 @@ public:
 
 	
     // control
-    int enable(int slaveNr);
-    int disable(int slaveNr);
-    int home(int slaveNr,bool always = false);
-    void jogPos(int slaveNr);
-    void jogNeg(int slaveNr);
-    void jogStop(int slaveNr);
-    int movePosition(int slaveNr, int32_t target, bool relative = false);
-    int movePosition(int slaveNr, int32_t target, int32_t velocity, bool relative = false);
-    int movePosition(int slaveNr, int32_t target, uint32_t velocity, bool relative = false);
-    int movePosition(int slaveNr, int32_t target, uint32_t velocity, uint32_t acceleration, uint32_t deceleration, bool relative = false);
+    int enable_powerstage(int slaveNr);
+    int disable_powerstage(int slaveNr);
+    int referencing_task(int slaveNr,bool always = false);
+    // void jogPos(int slaveNr);
+    // void jogNeg(int slaveNr);
+    void jog_task(int slaveNr, bool jog_positive, bool jog_negative, float duration);
+    void stop_motion_task(int slaveNr);
+    int position_task(int slaveNr, int32_t target, bool relative = false);
+    int position_task(int slaveNr, int32_t target, int32_t velocity, bool relative = false);
+    int position_task(int slaveNr, int32_t target, uint32_t velocity, bool relative = false);
+    int position_task(int slaveNr, int32_t target, uint32_t velocity, uint32_t acceleration, uint32_t deceleration, bool relative = false);
     //int forceMode(int slaveNr, int32_t target, bool reverse = false);
     int reset(int slaveNr);
     void waitCycle(); // Wait for the cycle time
