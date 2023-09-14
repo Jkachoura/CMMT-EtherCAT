@@ -364,6 +364,11 @@ int Master::movePosition(int slaveNr, int32_t target, int32_t velocity, bool rel
     else return movePosition(slaveNr, target, relative);
 }
 
+int Master::movePosition(int slaveNr, int32_t target, uint32_t velocity, bool relative){
+    setProfileVelocity(slaveNr, velocity);
+    return movePosition(slaveNr, target, relative);
+}
+
 int Master::movePosition(int slaveNr, int32_t target, uint32_t velocity, uint32_t acceleration, uint32_t deceleration, bool relative){
     auto retval = 0;
     // writing acceleration
