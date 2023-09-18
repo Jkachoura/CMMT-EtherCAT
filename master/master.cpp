@@ -282,30 +282,6 @@ int Master::referencing_task(int slaveNr, bool always){
     return -1;
 }
 
-// void Master::jogPos(int slaveNr){
-//     if (verbose)puts("Begin jog in positive direction");
-//     if (readyState(slaveNr)){
-//         uint8_t controlbyte;
-//         controlbyte = setMode(slaveNr, jog_mode);
-//         unsetControl(slaveNr);
-//         while (!getBit(slaveNr, status_mc));
-//         controlbyte = setBit(slaveNr, control_4);
-//     }
-//     else printf("Jogging not possible slave %d not enabled\n ", slaveNr);
-// }
-
-// void Master::jogNeg(int slaveNr){
-//     puts("Begin jog in negative direction");
-//     if (readyState(slaveNr)){
-//         uint8_t controlbyte;
-//         controlbyte = setMode(slaveNr, jog_mode);
-//         unsetControl(slaveNr);
-//         while (!getBit(slaveNr, status_mc));
-//         controlbyte = setBit(slaveNr, control_5);
-//     }
-//     else printf("Jogging not possible slave %d not enabled\n ", slaveNr);
-// }
-
 void Master::jog_task(int slaveNr, bool jog_positive, bool jog_negative, float duration) {
     if (jog_positive && jog_negative) {
         printf("Both positive and negative jog requested. Please choose one direction.\n");
@@ -347,7 +323,7 @@ void Master::stop_motion_task(int slaveNr){
     }
 }
 
-int Master::position_task(int slaveNr, int32_t target, bool relative){
+int Master::position_task(int slaveNr, int32_t target, bool absolute, bool nonblocking){
     /*Precondition for positioning mode
         The following conditions must be fulfilled for positioning mode :
     – Modes of operation display(0x6061) = 1
@@ -361,19 +337,27 @@ int Master::position_task(int slaveNr, int32_t target, bool relative){
         Festo — CMMT - AS - SW — 2019 - 08c 303
     – Bit 6: positioning type(absolute / relative)
     – Bit 8 : stop motion command(Halt)*/
-    char mode[9] = "Absolute";
-    if (relative){
-        strncpy_s(mode, "Relative", 9);
+    char modeVar[9] = "Relative";
+    //copy mode in to the global variable
+    strncpy_s(mode, modeVar, 9);
+    //copy target in to the global variable
+    this->target = target;
+    if (absolute){
+        strncpy_s(mode, "Absolute", 9);
     }
     if (verbose)printf("Starting %s movement to position %d of slave % d\n",mode , target, slaveNr);
     if (readyState(slaveNr)){
         setMode(slaveNr, profile_position_mode);
         unsetControl(slaveNr);
-        if (relative)setBit(slaveNr, control_6);
+        if (!absolute)setBit(slaveNr, control_6);
         setPos(slaveNr, target);
         waitCycle();
         unsetBit(slaveNr, control_halt);
         setBit(slaveNr, control_4);
+        if (nonblocking) {
+            if (verbose) printf("Non-blocking mode: Movement initiated\n");
+            return EXIT_SUCCESS;
+        }
         while (!getBit(slaveNr, status_ack_start)); // wait for ack to prevent response to previous mc 
         while (!getBit(slaveNr, status_mc)){
             if (verbose)printf("Move slave %d %s : %d %d\r", slaveNr, mode, target, getPos(slaveNr));
@@ -388,21 +372,21 @@ int Master::position_task(int slaveNr, int32_t target, bool relative){
     return EXIT_FAILURE;
 }
 
-int Master::position_task(int slaveNr, int32_t target, int32_t velocity, bool relative){
+int Master::position_task(int slaveNr, int32_t target, int32_t velocity, bool absolute, bool nonblocking){
     setProfileVelocity(slaveNr, velocity);
     if (velocity < 0) {
         printf("ERROR : Slave %d Velocity should be a positive number in positioning mode\n", slaveNr);
         return -1;
     }
-    else return position_task(slaveNr, target, relative);
+    else return position_task(slaveNr, target, absolute, nonblocking);
 }
 
-int Master::position_task(int slaveNr, int32_t target, uint32_t velocity, bool relative){
+int Master::position_task(int slaveNr, int32_t target, uint32_t velocity, bool absolute, bool nonblocking){
     setProfileVelocity(slaveNr, velocity);
-    return position_task(slaveNr, target, relative);
+    return position_task(slaveNr, target, absolute, nonblocking);
 }
 
-int Master::position_task(int slaveNr, int32_t target, uint32_t velocity, uint32_t acceleration, uint32_t deceleration, bool relative){
+int Master::position_task(int slaveNr, int32_t target, uint32_t velocity, uint32_t acceleration, uint32_t deceleration, bool absolute, bool nonblocking){
     auto retval = 0;
     // writing acceleration
     retval += ec_SDOwrite(slaveNr, 0x6083, 0, false, sizeof(acceleration), &acceleration, EC_TIMEOUTRXM);
@@ -411,7 +395,7 @@ int Master::position_task(int slaveNr, int32_t target, uint32_t velocity, uint32
     retval += ec_SDOwrite(slaveNr, 0x6084, 0, false, sizeof(deceleration), &deceleration, EC_TIMEOUTRXM);
 
     if (retval == 2){
-        retval = position_task(slaveNr, target, velocity, relative);
+        retval = position_task(slaveNr, target, velocity, absolute, nonblocking);
         return retval;
     }
     else{
@@ -419,6 +403,16 @@ int Master::position_task(int slaveNr, int32_t target, uint32_t velocity, uint32
     }
     
     return EXIT_FAILURE;
+}
+
+void Master::wait_for_target_reached(int slaveNr) {
+    while (!getBit(slaveNr, status_ack_start)); // wait for ack to prevent response to previous motion command
+    while (!getBit(slaveNr, status_mc)) {
+        if (verbose) {
+            printf("Move slave %d %s : %d %d\r", slaveNr, mode, target, getPos(slaveNr));
+        }
+        unsetControl(slaveNr);
+    }
 }
 
 void Master::cycle(){

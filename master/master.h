@@ -89,15 +89,13 @@ public:
     int enable_powerstage(int slaveNr);
     int disable_powerstage(int slaveNr);
     int referencing_task(int slaveNr,bool always = false);
-    // void jogPos(int slaveNr);
-    // void jogNeg(int slaveNr);
     void jog_task(int slaveNr, bool jog_positive, bool jog_negative, float duration);
     void stop_motion_task(int slaveNr);
-    int position_task(int slaveNr, int32_t target, bool relative = false);
-    int position_task(int slaveNr, int32_t target, int32_t velocity, bool relative = false);
-    int position_task(int slaveNr, int32_t target, uint32_t velocity, bool relative = false);
-    int position_task(int slaveNr, int32_t target, uint32_t velocity, uint32_t acceleration, uint32_t deceleration, bool relative = false);
-    //int forceMode(int slaveNr, int32_t target, bool reverse = false);
+    int position_task(int slaveNr, int32_t target, bool absolute = false, bool nonblocking = false);
+    int position_task(int slaveNr, int32_t target, int32_t velocity, bool absolute = false, bool nonblocking = false);
+    int position_task(int slaveNr, int32_t target, uint32_t velocity, bool absolute = false, bool nonblocking = false);
+    int position_task(int slaveNr, int32_t target, uint32_t velocity, uint32_t acceleration, uint32_t deceleration, bool absolute = false, bool nonblocking = false);
+    void wait_for_target_reached(int slaveNr);
     int reset(int slaveNr);
     void waitCycle(); // Wait for the cycle time
 
@@ -111,6 +109,9 @@ private:
 	bool inOP;
     bool verbose; // Output to screen
 	uint8_t currentgroup = 0;
+
+    char mode[9]; 
+    int32_t target;
 
     bool readyState(int slaveNr);
 
