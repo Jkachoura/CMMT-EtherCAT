@@ -405,7 +405,7 @@ int Master::position_task(int slaveNr, int32_t target, uint32_t velocity, uint32
     return EXIT_FAILURE;
 }
 
-void Master::wait_for_target_reached(int slaveNr) {
+bool Master::wait_for_target_position(int slaveNr) {
     while (!getBit(slaveNr, status_ack_start)); // wait for ack to prevent response to previous motion command
     while (!getBit(slaveNr, status_mc)) {
         if (verbose) {
@@ -413,6 +413,7 @@ void Master::wait_for_target_reached(int slaveNr) {
         }
         unsetControl(slaveNr);
     }
+    return TRUE;
 }
 
 void Master::cycle(){

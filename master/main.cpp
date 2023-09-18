@@ -25,10 +25,13 @@ int main(int argc, char* argv[])
         // ecMaster.enable_powerstage(slaveNr); // Power the drive
         ecMaster.position_task(slaveNr, 20000000, 100000, true, true); // absolute movement position and velocity
         //WAIT FOR POSITION REACHED
-        ecMaster.wait_for_target_reached(slaveNr);
+        ecMaster.wait_for_target_position(slaveNr);
         Sleep(1000);
         ecMaster.position_task(slaveNr, 100000, 100000, true, true); // absolute movement position and velocity
-        ecMaster.wait_for_target_reached(slaveNr);
+        if(ecMaster.wait_for_target_position(slaveNr)){
+            Sleep(1000);
+            std::cout << "Target reached" << std::endl;
+        }
         // ecMaster.position_task(slaveNr, -5000000, 100000, true); // relative movement (true)
 
         // ecMaster.position_task(slaveNr, 20000000, 1000000, 100000, 100000); // absolute movement position and velocity

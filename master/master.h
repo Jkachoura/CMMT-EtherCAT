@@ -95,7 +95,7 @@ public:
     int position_task(int slaveNr, int32_t target, int32_t velocity, bool absolute = false, bool nonblocking = false);
     int position_task(int slaveNr, int32_t target, uint32_t velocity, bool absolute = false, bool nonblocking = false);
     int position_task(int slaveNr, int32_t target, uint32_t velocity, uint32_t acceleration, uint32_t deceleration, bool absolute = false, bool nonblocking = false);
-    void wait_for_target_reached(int slaveNr);
+    bool wait_for_target_position(int slaveNr);
     int reset(int slaveNr);
     void waitCycle(); // Wait for the cycle time
 
