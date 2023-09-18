@@ -73,67 +73,86 @@ class Master
         
         jog_mode = 253, // uint8 = 253 || int8 = -3
     }Mode_of_Operation_t;
-public:
-    // Constructor / Destructor
-	Master(char ifname[] = "eth0", const uint32_t cycletime = 2000, bool showNonErrors = true);
-	~Master();
+    public:
+        // Constructor / Destructor
+        Master(char ifname[] = "eth0", const uint32_t cycletime = 2000, bool showNonErrors = true);
+        ~Master();
 
-    // status
-    int getError(int slaveNr);
-    int16_t get16(int slaveNr, uint8_t byte);
-    int32_t getPos(int slaveNr);
-    bool connected(); // Check if drives are ready to use (in operation mode)
+        // status
+        int getError(int slaveNr);
+        int16_t get16(int slaveNr, uint8_t byte);
+        int32_t getPos(int slaveNr);
+        bool connected(); // Check if drives are ready to use (in operation mode)
 
-	
-    // control
-    int enable_powerstage(int slaveNr);
-    int disable_powerstage(int slaveNr);
-    int referencing_task(int slaveNr,bool always = false);
-    void jog_task(int slaveNr, bool jog_positive, bool jog_negative, float duration);
-    void stop_motion_task(int slaveNr);
-    int position_task(int slaveNr, int32_t target, bool absolute = false, bool nonblocking = false);
-    int position_task(int slaveNr, int32_t target, int32_t velocity, bool absolute = false, bool nonblocking = false);
-    int position_task(int slaveNr, int32_t target, uint32_t velocity, bool absolute = false, bool nonblocking = false);
-    int position_task(int slaveNr, int32_t target, uint32_t velocity, uint32_t acceleration, uint32_t deceleration, bool absolute = false, bool nonblocking = false);
-    bool wait_for_target_position(int slaveNr);
-    int reset(int slaveNr);
-    void waitCycle(); // Wait for the cycle time
+        
+        // control
+        int enable_powerstage(int slaveNr);
+        int disable_powerstage(int slaveNr);
+        int referencing_task(int slaveNr,bool always = false);
+        void jog_task(int slaveNr, bool jog_positive, bool jog_negative, float duration);
+        void stop_motion_task(int slaveNr);
+        int position_task(int slaveNr, int32_t target, bool absolute = false, bool nonblocking = false);
+        int position_task(int slaveNr, int32_t target, int32_t velocity, bool absolute = false, bool nonblocking = false);
+        int position_task(int slaveNr, int32_t target, uint32_t velocity, bool absolute = false, bool nonblocking = false);
+        int position_task(int slaveNr, int32_t target, uint32_t velocity, uint32_t acceleration, uint32_t deceleration, bool absolute = false, bool nonblocking = false);
+        bool wait_for_target_position(int slaveNr);
+        int reset(int slaveNr);
+        void waitCycle(); // Wait for the cycle time
 
-private:
-    uint32_t ctime; // Store the cycle time in microseconds
-    std::mutex m; // prevent acces to EC data at the same time
-    
-    char IOmap[4096];
-    volatile int wkc;
+    private:
+        uint32_t ctime; // Store the cycle time in microseconds
+        std::mutex m; // prevent acces to EC data at the same time
+        
+        char IOmap[4096];
+        volatile int wkc;
 
-	bool inOP;
-    bool verbose; // Output to screen
-	uint8_t currentgroup = 0;
+        bool inOP;
+        bool verbose; // Output to screen
+        uint8_t currentgroup = 0;
 
-    char mode[9]; 
-    int32_t target;
+        char mode[9]; 
+        int32_t target;
 
-    bool readyState(int slaveNr);
+        bool readyState(int slaveNr);
 
-    // Data handling
-    uint8_t setBit(int slaveNr, uint8_t bit, uint8_t byte = Controlword);
-    uint8_t unsetBit(int slaveNr, uint8_t bit, uint8_t byte = Controlword);
-    uint16_t unsetControl(int slaveNr);
-    bool getBit(int slaveNr, uint8_t bit, uint8_t byte = Statusword);
-    void setByte(int slaveNr, uint8_t value, uint8_t byte = Controlword);
-    void set16(int slaveNr, int16_t value, uint8_t byte);
-    void setPos(int slaveNr, int32_t target, uint8_t byte = Target_Position);
-    void setProfileVelocity(int slaveNr, uint32_t velocity, uint8_t byte = Profile_velocity);
-    int  startup();
-    void cycle(); // send and recieve data, wait cycletime 
-    int  setMode(int slaveNr, uint8_t mode);
+        // Data handling
+        uint8_t setBit(int slaveNr, uint8_t bit, uint8_t byte = Controlword);
+        uint8_t unsetBit(int slaveNr, uint8_t bit, uint8_t byte = Controlword);
+        uint16_t unsetControl(int slaveNr);
+        bool getBit(int slaveNr, uint8_t bit, uint8_t byte = Statusword);
+        void setByte(int slaveNr, uint8_t value, uint8_t byte = Controlword);
+        void set16(int slaveNr, int16_t value, uint8_t byte);
+        void setPos(int slaveNr, int32_t target, uint8_t byte = Target_Position);
+        void setProfileVelocity(int slaveNr, uint32_t velocity, uint8_t byte = Profile_velocity);
+        int  startup();
+        void cycle(); // send and recieve data, wait cycletime 
+        int  setMode(int slaveNr, uint8_t mode);
 
-    // create PDO's
-    int mapCia402(uint16_t slaveNr);
-    
-    // Ethercat state
-    void setPreOp(int slaveNr);
+        // create PDO's
+        int mapCia402(uint16_t slaveNr);
+        
+        // Ethercat state
+        void setPreOp(int slaveNr);
 
-    //Thread
-    std::thread cycle_thread;
+        //Thread
+        std::thread cycle_thread;
  };
+
+class Slave {
+    public:
+        Slave(Master& master, int slaveNr);
+
+        int enable_powerstage();
+        int disable_powerstage();
+        int referencing_task(bool always = false);
+        void jog_task(bool jog_positive, bool jog_negative, float duration);
+        void stop_motion_task();
+        int position_task(int32_t target, int32_t velocity, bool absolute = false, bool nonblocking = false);
+        int position_task(int32_t target, uint32_t velocity, bool absolute = false, bool nonblocking = false);
+        int position_task(int32_t target, uint32_t velocity, uint32_t acceleration, uint32_t deceleration, bool absolute = false, bool nonblocking = false);
+        bool wait_for_target_position();
+
+    private:
+        Master& master;      // Reference to the EtherCAT master
+        int slaveNr;     // The slave's number or identifier
+};

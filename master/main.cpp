@@ -6,40 +6,31 @@ int main(int argc, char* argv[])
 
     Master ecMaster(ifaceName, 8000); // 8000 = 8 ms cycle time
 
-    if (ecMaster.connected()) // Check if EtherCat Master reached the Operational State
-    {
+    if (ecMaster.connected()){ // Check if EtherCat Master reached the Operational State
         for (int i = 1; i <= ec_slavecount; i++)
         {
             ecMaster.reset(i);  // reset all drives
         }
 
-        int slaveNr = 1; // Slave to move in this example 0 = Master, slaves numbered in connected order
-        ecMaster.enable_powerstage(slaveNr);
-        ecMaster.referencing_task(slaveNr, true); // Home the drive, even when already homed (true)
-        // ecMaster.jog_task(slaveNr, true, false, 0);
-        // Sleep(10000);
-        // ecMaster.jog_task(slaveNr, false, true, 5.5);
-        // Sleep(5000); // delay next instruction for 5 seconds
-        // ecMaster.disable_powerstage(slaveNr); // Power off the drive
-        // Sleep(5000); // delay next instruction for 5 seconds
-        // ecMaster.enable_powerstage(slaveNr); // Power the drive
-        ecMaster.position_task(slaveNr, 20000000, 100000, true, true); // absolute movement position and velocity
-        //WAIT FOR POSITION REACHED
-        ecMaster.wait_for_target_position(slaveNr);
+        Slave drive(ecMaster, 1); // Create a slave object with ID 1
+        drive.enable_powerstage(); // Enable the powerstage of the drive
+        drive.referencing_task(); // Start the referencing task
+        drive.jog_task(true, false, 15); // Jog the drive positive for 2 seconds
+        drive.jog_task(false, true, 15); // Jog the drive negative for 2 seconds
+        drive.jog_task(true, false, 0); // Jog the drive positive for 2 seconds
+        Sleep(5000); // Wait 2 seconds
+        drive.stop_motion_task(); // Stop the motion of the drive
+        Sleep(2000); // Wait 2 seconds
+        drive.disable_powerstage(); // Disable the powerstage of the drive
         Sleep(1000);
-        ecMaster.position_task(slaveNr, 100000, 100000, true, true); // absolute movement position and velocity
-        if(ecMaster.wait_for_target_position(slaveNr)){
-            Sleep(1000);
-            std::cout << "Target reached" << std::endl;
-        }
-        // ecMaster.position_task(slaveNr, -5000000, 100000, true); // relative movement (true)
-
-        // ecMaster.position_task(slaveNr, 20000000, 1000000, 100000, 100000); // absolute movement position and velocity
-
+        drive.enable_powerstage(); // Enable the powerstage of the drive
+        Sleep(1000);
+        drive.position_task(1000000, 100000, true, false); // Move the drive to position 1000000 with a velocity of 100000
+        drive.position_task(0, 100000, false, true); // Move the drive to position 0 with a velocity of 100000
+        drive.wait_for_target_position(); // Wait until the drive reached the target position
         return EXIT_SUCCESS; // Exit the program
     }
-    else
-    {
+    else{
         return EXIT_FAILURE; // Exit the program
     }
 }

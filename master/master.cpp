@@ -597,3 +597,41 @@ int Master::startup(){
 
     return EXIT_FAILURE;
 }
+
+Slave::Slave(Master& master, int slaveNr) : master(master), slaveNr(slaveNr) {}
+
+int Slave::enable_powerstage(){
+    return master.enable_powerstage(this->slaveNr);
+}
+
+int Slave::disable_powerstage(){
+    return master.disable_powerstage(this->slaveNr);
+}
+
+int Slave::referencing_task(bool always){
+    return master.referencing_task(this->slaveNr);
+}
+
+void Slave::jog_task(bool jog_positive, bool jog_negative, float duration) {
+    master.jog_task(this->slaveNr, jog_positive, jog_negative, duration);
+}
+
+void Slave::stop_motion_task(){
+    master.stop_motion_task(this->slaveNr);
+}
+
+int Slave::position_task(int32_t target, int32_t velocity, bool absolute, bool nonblocking){
+    return master.position_task(this->slaveNr, target, velocity, absolute, nonblocking);
+}
+
+int Slave::position_task(int32_t target, uint32_t velocity, bool absolute, bool nonblocking){
+    return master.position_task(this->slaveNr, target, velocity, absolute, nonblocking);
+}
+
+int Slave::position_task(int32_t target, uint32_t velocity, uint32_t acceleration, uint32_t deceleration, bool absolute, bool nonblocking){
+    return master.position_task(this->slaveNr, target, velocity, acceleration, deceleration, absolute, nonblocking);
+}
+
+bool Slave::wait_for_target_position(){
+    return master.wait_for_target_position(this->slaveNr);
+}
