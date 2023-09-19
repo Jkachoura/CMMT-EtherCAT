@@ -2,6 +2,13 @@
 
 #include "master.h"
 
+/**
+ * Constructor for the EtherCat Master
+ * 
+ * @param ifname Network interface name
+ * @param cycletime Cycle time in microseconds
+ * @param showNonErrors Show non errors
+ */
 Master::Master(char ifname[], const uint32_t cycletime, bool showNonErrors){
     /* init values */
     this->inOP = FALSE;
@@ -29,6 +36,11 @@ Master::Master(char ifname[], const uint32_t cycletime, bool showNonErrors){
     }
 }
 
+/**
+ * Destructor for the EtherCat Master
+ * 
+ * @note This function is called when the program exits
+ */
 Master::~Master(){
     if (inOP){
         if (verbose){
@@ -48,6 +60,11 @@ Master::~Master(){
     }
 }
 
+/**
+ * Checks if the slave is in the operational state
+ * 
+ * @return EXIT_SUCCESS or EXIT_FAILURE
+ */
 bool Master::readyState(int slaveNr){
     bool retVal = this->inOP; 
     if (retVal){
@@ -59,6 +76,15 @@ bool Master::readyState(int slaveNr){
     return retVal; 
 }
 
+/**
+ * Set a bit
+ * 
+ * @param slaveNr Slave number
+ * @param bit Bit to set
+ * @param byte Byte to start writing
+ * 
+ * @return base Base value 
+ */
 uint8_t Master::setBit(int slaveNr, uint8_t bit, uint8_t byte){
     while (bit > 7){
         bit -= 8;
@@ -72,6 +98,15 @@ uint8_t Master::setBit(int slaveNr, uint8_t bit, uint8_t byte){
     return base;
 }
 
+/**
+ * Unset a bit
+ * 
+ * @param slaveNr Slave number
+ * @param bit Bit to unset
+ * @param byte Byte to start writing
+ * 
+ * @return base Base value 
+ */
 uint8_t Master::unsetBit(int slaveNr, uint8_t bit, uint8_t byte){
     while (bit > 7){
         bit -= 8;
@@ -85,10 +120,17 @@ uint8_t Master::unsetBit(int slaveNr, uint8_t bit, uint8_t byte){
     return base;
 }
 
+/**
+ * Unset all control bits
+ * 
+ * @param slaveNr Slave number
+ * 
+ * @return return value
+ */
 uint16_t Master::unsetControl(int slaveNr){
     uint8 byte0=0, byte1=0;
 
-    //unset all control bits from previous mode
+    //Unset all control bits from previous mode
     byte0 = unsetBit(slaveNr, control_4, Controlword);
     byte0 = unsetBit(slaveNr, control_5, Controlword);
     byte0 = unsetBit(slaveNr, control_6, Controlword);
@@ -99,23 +141,46 @@ uint16_t Master::unsetControl(int slaveNr){
     return retVal;
 }
 
+/**
+ * Get the value of a bit
+ * 
+ * @param slaveNr Slave number
+ * @param bit Bit to get
+ * @param byte Byte to start reading
+ * 
+ * @return Value of the bit
+ */
 bool Master::getBit(int slaveNr, uint8_t bit, uint8_t byte){
     while (bit > 7){
         bit -= 8;
         byte += 1;
-        if (byte >= ec_slave[slaveNr].Ibytes) byte = 0; // prevent out of bounds
+        if (byte >= ec_slave[slaveNr].Ibytes) byte = 0; // Prevent out of bounds
     }
 
     const auto retVal = *(ec_slave[slaveNr].inputs + byte) & (1 << bit);
     return retVal;
 }
 
+/**
+ * Sets a byte
+ * 
+ * @param slaveNr Slave number
+ * @param value Value to set
+ * @param byte Byte to start writing
+ */
 void Master::setByte(int slaveNr, uint8_t value, uint8_t byte){
     m.lock();
     *(ec_slave[slaveNr].outputs + byte) = value;
     m.unlock();
 }
 
+/**
+ * Gets errors on the slave 
+ * 
+ * @param slaveNr Slave number
+ * 
+ * @return Number of errors
+ */
 int Master::getError(int slaveNr){
     auto retval = 0;
     if(getBit(slaveNr, status_fault)) retval--;
@@ -123,6 +188,14 @@ int Master::getError(int slaveNr){
     return retval;
 }
 
+/**
+ * Startup function for the EtherCat Master
+ * 
+ * @param slaveNr Slave number
+ * @param byte Byte to start reading
+ * 
+ * @return return value of @see ec_init
+ */
 int16_t Master::get16(int slaveNr, uint8_t byte){
     auto retVal = 0;
     
@@ -132,6 +205,13 @@ int16_t Master::get16(int slaveNr, uint8_t byte){
     return retVal;
 }
 
+/**
+ * Get the position of the drive
+ * 
+ * @param slaveNr Slave number
+ * 
+ * @return Position
+ */
 int32_t Master::getPos(int slaveNr){
     auto retVal = 0;
     const int positionActualValueAddress = 3;
@@ -144,10 +224,16 @@ int32_t Master::getPos(int slaveNr){
     return retVal;
 }
 
+/**
+ * Startup function for the EtherCat Master
+ */
 bool Master::connected(){
     return this->inOP;
 }
 
+/**
+ * Startup function for the EtherCat Master
+ */
 void Master::set16(int slaveNr, int16_t value, uint8_t byte){
     m.lock();
     *(ec_slave[slaveNr].outputs + byte + 1) = (value >> 8) & 0xFF;
@@ -155,6 +241,13 @@ void Master::set16(int slaveNr, int16_t value, uint8_t byte){
     m.unlock();
 }
 
+/**
+ * Set the position
+ * 
+ * @param slaveNr Slave number
+ * @param target Target position
+ * @param byte Byte to start writing
+ */
 void Master::setPos(int slaveNr, int32_t target, uint8_t byte ){
     m.lock();
     *(ec_slave[slaveNr].outputs + byte + 3) = (target >> 24) & 0xFF;
@@ -164,6 +257,13 @@ void Master::setPos(int slaveNr, int32_t target, uint8_t byte ){
     m.unlock();
 }
 
+/**
+ * Set the profile velocity
+ * 
+ * @param slaveNr Slave number
+ * @param velocity Velocity
+ * @param byte Byte to start writing
+ */
 void Master::setProfileVelocity(int slaveNr, uint32_t velocity, uint8_t byte){
     m.lock();
     *(ec_slave[slaveNr].outputs + byte + 3) = (velocity >> 24) & 0xFF;
@@ -173,15 +273,22 @@ void Master::setProfileVelocity(int slaveNr, uint32_t velocity, uint8_t byte){
     m.unlock();
 }
 
+/**
+ * Resets the slave
+ * 
+ * @param slaveNr Slave number
+ * 
+ * @return EXIT_SUCCESS or EXIT_FAILURE
+ */
 int Master::reset(int slaveNr){
     unsigned int timeout = 1000;
     if(verbose)printf("Resetting slave nr : %d\n",slaveNr);
     if (this->inOP){
         m.lock();
-        memset(ec_slave[slaveNr].outputs, 0, ec_slave[slaveNr].Obytes); // start empty to prevent retriggering error
+        memset(ec_slave[slaveNr].outputs, 0, ec_slave[slaveNr].Obytes); // Start empty to prevent retriggering error
         m.unlock();
         if (verbose)printf("Wait for empty frame slave nr : %d\n", slaveNr);
-        waitCycle(); // wait for empty frame to be send
+        waitCycle(); // Wait for empty frame to be send
 
         while ((getError(slaveNr) != 0) && timeout--){
             setBit(slaveNr, control_fault_reset);
@@ -206,10 +313,20 @@ int Master::reset(int slaveNr){
    
 }
 
+/**
+ * Wait for the cycle time
+ */
 void Master::waitCycle(){
     std::this_thread::sleep_for(std::chrono::microseconds(this->ctime));
 }
 
+/**
+ * Enable the powerstage of the drive
+ * 
+ * @param slaveNr Slave number
+ * 
+ * @return EXIT_SUCCESS or EXIT_FAILURE
+ */
 int Master::enable_powerstage(int slaveNr){
     unsigned int timeout = 1000000;
     if (verbose)printf("Start Enabling Drive %d\n", slaveNr);
@@ -242,6 +359,13 @@ int Master::enable_powerstage(int slaveNr){
     }
 }
 
+/**
+ * Disable the powerstage of the drive
+ * 
+ * @param slaveNr Slave number
+ * 
+ * @return EXIT_SUCCESS or EXIT_FAILURE
+ */
 int Master::disable_powerstage(int slaveNr){
     unsigned int timeout = 1000;
     unsetBit(slaveNr, control_enable_operation);
@@ -262,6 +386,14 @@ int Master::disable_powerstage(int slaveNr){
     
 }
 
+/**
+ * Perform the referencing task. If successful, the drive is in the homed state.
+ * 
+ * @param slaveNr Slave number
+ * @param always Always perform the referencing task
+ * 
+ * @return EXIT_SUCCESS or EXIT_FAILURE
+ */
 int Master::referencing_task(int slaveNr, bool always){   
     if (readyState(slaveNr)){
         setMode(slaveNr, homing_mode);
@@ -272,7 +404,7 @@ int Master::referencing_task(int slaveNr, bool always){
             printf("Slave %d starting homing\n", slaveNr);
             unsetControl(slaveNr);
             setBit(slaveNr, control_4);
-            while (!getBit(slaveNr, status_ref_reached)); // check for rehoming
+            while (!getBit(slaveNr, status_ref_reached)); // Check for rehoming
             unsetBit(slaveNr, control_4);
         }
         return 0;
@@ -282,6 +414,16 @@ int Master::referencing_task(int slaveNr, bool always){
     return -1;
 }
 
+/**
+ * Perform a jogging task with given duration
+ * 
+ * @param slaveNr Slave number
+ * @param jog_positive Jog positive
+ * @param jog_negative Jog negative
+ * @param duration Duration in seconds (0 = nonblocking)
+ * 
+ * @note The jogging motion stops if jog_positive and jog_negative are equal
+ */
 void Master::jog_task(int slaveNr, bool jog_positive, bool jog_negative, float duration) {
     if (jog_positive && jog_negative) {
         printf("Both positive and negative jog requested. Please choose one direction.\n");
@@ -314,7 +456,11 @@ void Master::jog_task(int slaveNr, bool jog_positive, bool jog_negative, float d
     }
 }
 
-
+/**
+ * Stops any currently active motion task
+ * 
+ * @param slaveNr Slave number
+ */
 void Master::stop_motion_task(int slaveNr){
     if (verbose)printf("Stopping Jog movement\n");
     if (readyState(slaveNr)){
@@ -323,24 +469,36 @@ void Master::stop_motion_task(int slaveNr){
     }
 }
 
+/**
+ * Position task
+ * 
+ * @param slaveNr Slave number
+ * @param target Target position
+ * @param absolute Absolute or relative(false) movement
+ * @param nonblocking Nonblocking or blocking movement
+ * 
+ * @return EXIT_SUCCESS or EXIT_FAILURE
+ */
 int Master::position_task(int slaveNr, int32_t target, bool absolute, bool nonblocking){
-    /*Precondition for positioning mode
-        The following conditions must be fulfilled for positioning mode :
-    – Modes of operation display(0x6061) = 1
-    – Statusword(0x6041) = 1X0X X11X X011 0111b
-        Control and monitoring
-        Object 0x6040 : Controlword
-        The object controls the following functions of positioning mode :
-    – Bit 4 : start motion command(New set - point)
-    – Bit 5 : accept change immediately(Change set immediately)
-        Motion Control
-        Festo — CMMT - AS - SW — 2019 - 08c 303
-    – Bit 6: positioning type(absolute / relative)
-    – Bit 8 : stop motion command(Halt)*/
+    /**
+     * Precondition for positioning mode
+     * The following conditions must be fulfilled for positioning mode :
+     * – Modes of operation display(0x6061) = 1
+     * – Statusword(0x6041) = 1X0X X11X X011 0111b
+     * Control and monitoring
+     * Object 0x6040 : Controlword
+     * The object controls the following functions of positioning mode :
+     * – Bit 4 : start motion command(New set - point)
+     * – Bit 5 : accept change immediately(Change set immediately)
+     * Motion Control
+     * Festo — CMMT - AS - SW — 2019 - 08c 303
+     * – Bit 6: positioning type(absolute / relative)
+     * – Bit 8 : stop motion command(Halt)
+     */
     char modeVar[9] = "Relative";
-    //copy mode in to the global variable
+    //Copy mode in to the global variable
     strncpy_s(mode, modeVar, 9);
-    //copy target in to the global variable
+    //Copy target in to the global variable
     this->target = target;
     if (absolute){
         strncpy_s(mode, "Absolute", 9);
@@ -358,7 +516,7 @@ int Master::position_task(int slaveNr, int32_t target, bool absolute, bool nonbl
             if (verbose) printf("Non-blocking mode: Movement initiated\n");
             return EXIT_SUCCESS;
         }
-        while (!getBit(slaveNr, status_ack_start)); // wait for ack to prevent response to previous mc 
+        while (!getBit(slaveNr, status_ack_start)); // Wait for ack to prevent response to previous mc 
         while (!getBit(slaveNr, status_mc)){
             if (verbose)printf("Move slave %d %s : %d %d\r", slaveNr, mode, target, getPos(slaveNr));
             unsetControl(slaveNr);
@@ -372,6 +530,17 @@ int Master::position_task(int slaveNr, int32_t target, bool absolute, bool nonbl
     return EXIT_FAILURE;
 }
 
+/**
+ * Position task with velocity
+ * 
+ * @param slaveNr Slave number
+ * @param target Target position
+ * @param velocity Velocity
+ * @param absolute Absolute or relative(false) movement
+ * @param nonblocking Nonblocking or blocking movement
+ * 
+ * @return @see position_task
+ */
 int Master::position_task(int slaveNr, int32_t target, int32_t velocity, bool absolute, bool nonblocking){
     setProfileVelocity(slaveNr, velocity);
     if (velocity < 0) {
@@ -381,17 +550,43 @@ int Master::position_task(int slaveNr, int32_t target, int32_t velocity, bool ab
     else return position_task(slaveNr, target, absolute, nonblocking);
 }
 
+/**
+ * Position task with velocity
+ * 
+ * @param slaveNr Slave number
+ * @param target Target position
+ * @param velocity Velocity
+ * @param absolute Absolute or relative(false) movement
+ * @param nonblocking Nonblocking or blocking movement
+ * 
+ * @return @see position_task
+ * 
+ * @remark This function prevents an error
+ */
 int Master::position_task(int slaveNr, int32_t target, uint32_t velocity, bool absolute, bool nonblocking){
     setProfileVelocity(slaveNr, velocity);
     return position_task(slaveNr, target, absolute, nonblocking);
 }
 
+/**
+ * Position task with acceleration and deceleration
+ * 
+ * @param slaveNr Slave number
+ * @param target Target position
+ * @param velocity Velocity
+ * @param acceleration Acceleration
+ * @param deceleration Deceleration
+ * @param absolute Absolute or relative(false) movement
+ * @param nonblocking Nonblocking or blocking movement
+ * 
+ * @return @see position_task
+ */
 int Master::position_task(int slaveNr, int32_t target, uint32_t velocity, uint32_t acceleration, uint32_t deceleration, bool absolute, bool nonblocking){
     auto retval = 0;
-    // writing acceleration
+    // Writing acceleration
     retval += ec_SDOwrite(slaveNr, 0x6083, 0, false, sizeof(acceleration), &acceleration, EC_TIMEOUTRXM);
     
-    // writing deceleration
+    // Writing deceleration
     retval += ec_SDOwrite(slaveNr, 0x6084, 0, false, sizeof(deceleration), &deceleration, EC_TIMEOUTRXM);
 
     if (retval == 2){
@@ -405,8 +600,15 @@ int Master::position_task(int slaveNr, int32_t target, uint32_t velocity, uint32
     return EXIT_FAILURE;
 }
 
+/**
+ * Wait for the target position to be reached
+ * 
+ * @param slaveNr Slave number
+ * 
+ * @return TRUE if target position is reached
+ */
 bool Master::wait_for_target_position(int slaveNr) {
-    while (!getBit(slaveNr, status_ack_start)); // wait for ack to prevent response to previous motion command
+    while (!getBit(slaveNr, status_ack_start)); // Wait for ack to prevent response to previous motion command
     while (!getBit(slaveNr, status_mc)) {
         if (verbose) {
             printf("Move slave %d %s : %d %d\r", slaveNr, mode, target, getPos(slaveNr));
@@ -416,6 +618,13 @@ bool Master::wait_for_target_position(int slaveNr) {
     return TRUE;
 }
 
+/**
+ * Cycle function for the EtherCat Master to receive and 
+ * send data but wait for a cycle time. This function
+ * orchestrates the communication cycle with EtherCAT slaves,
+ * ensuring that data is sent and received within the specified
+ * cycle time.
+ */
 void Master::cycle(){
     auto cycletime = std::chrono::microseconds(this->ctime);
 
@@ -436,6 +645,14 @@ void Master::cycle(){
     }
 }
 
+/**
+ * Set the mode of the drive
+ * 
+ * @param slaveNr Slave number
+ * @param mode Mode to set
+ * 
+ * @return mode Mode that is set
+ */
 int Master::setMode(int slaveNr, uint8_t mode){
     int timeout = 100;
     // Wait for mode to get active
@@ -459,6 +676,7 @@ int Master::setMode(int slaveNr, uint8_t mode){
  * Cia402 configuration for Festo CMMT-AS and CMMT-ST
  *
  * @param slaveNr Slave number
+ * 
  * @return retval Number of successful writes
  */
 int Master::mapCia402(uint16_t slaveNr){
@@ -468,7 +686,7 @@ int Master::mapCia402(uint16_t slaveNr){
     // Complete Access if true write multiple values in one go, false one value at a time
     bool ca = false; 
 
-    // floating value cycle time in seconds
+    // Floating value cycle time in seconds
     float32 ctimeInSeconds = (float32)this->ctime / 1000000;
 
     // PDO output
@@ -524,23 +742,34 @@ int Master::mapCia402(uint16_t slaveNr){
     return retval;
 }
 
+/**
+ * Configuring the slave before operational mode
+ * 
+ * @param slaveNr Slave number
+ */
 void Master::setPreOp(int slaveNr){
     printf("Configuring slave %d : %s id : 0x%x\n", slaveNr, ec_slave[slaveNr].name, ec_slave[slaveNr].eep_id);
-    // check if name is correct for all types of CMMT (not always reliable)
+    // Check if name is correct for all types of CMMT (not always reliable)
     if (strcmp(ec_slave[slaveNr].name, "CMMT-AS") == 0 || strcmp(ec_slave[slaveNr].name, "CMMT-ST") == 0 || strcmp(ec_slave[slaveNr].name, "FestoCMMT") == 0 ||
-        ec_slave[slaveNr].eep_id == 0x7b5a25 || 0x7b1a95 == ec_slave[slaveNr].eep_id){ // Or based on ID{
+        ec_slave[slaveNr].eep_id == 0x7b5a25 || 0x7b1a95 == ec_slave[slaveNr].eep_id){ // Or based on ID
         mapCia402(slaveNr);
     }
     
 }
 
+/**
+ * Startup function for the EtherCat Master
+ * 
+ * @return EXIT_SUCCESS or EXIT_FAILURE
+ */
 int Master::startup(){
     if (verbose)printf("Starting Init\n");
-    /* find and auto-config slaves */
+    // Find and auto-config slaves
     if (ec_config_init(FALSE) > 0){
         for (int i = 1; i <= ec_slavecount; i++){
             setPreOp(i); // Mapping PDO data to drives
         }
+
         if(verbose)printf("%d slaves found and configured.\n", ec_slavecount);
         ec_config_map(&IOmap); // Make shadow coppy of online data
 
@@ -552,26 +781,28 @@ int Master::startup(){
         }
 
         if (verbose)printf("Slaves mapped, state to SAFE_OP.\n");
-        /* wait for all slaves to reach SAFE_OP state */
+        // Wait for all slaves to reach SAFE_OP state 
         ec_statecheck(0, EC_STATE_SAFE_OP, EC_TIMEOUTSTATE);
         printf("State %d = %d\n", EC_STATE_SAFE_OP,ec_readstate());
-        if (verbose)printf("segments : %d : %d %d %d %d\n", ec_group[0].nsegments, ec_group[0].IOsegment[0], ec_group[0].IOsegment[1], ec_group[0].IOsegment[2], ec_group[0].IOsegment[3]);
-
+        if (verbose)printf("segments : %d : %d %d %d %d\n", ec_group[0].nsegments, ec_group[0].IOsegment[0], ec_group[0].IOsegment[1],
+                                                            ec_group[0].IOsegment[2], ec_group[0].IOsegment[3]);
         if (verbose)printf("Request operational state for all slaves\n");
         int expectedWKC = (ec_group[0].outputsWKC * 2) + ec_group[0].inputsWKC;
         if (verbose)printf("Calculated workcounter %d\n", expectedWKC);
         ec_slave[0].state = EC_STATE_OPERATIONAL;
-        /* request OP state for all slaves */
+        // Request OP state for all slaves
         ec_writestate(0); // 0 == Master
-        /* wait for all slaves to reach OP state */
+        // Wait for all slaves to reach OP state 
         auto timeout = 5;
+
         do{
-            /* send a least one valid process data to make outputs in slaves happy*/
+            // Send a least one valid process data to make outputs in slaves happy
             ec_send_processdata();
             ec_receive_processdata(EC_TIMEOUTRET);
-            ec_statecheck(0, EC_STATE_OPERATIONAL, EC_TIMEOUTSTATE); // timeout was 50000
+            ec_statecheck(0, EC_STATE_OPERATIONAL, EC_TIMEOUTSTATE); // Timeout was 50000
             if(ec_slave[0].state != EC_STATE_OPERATIONAL)printf("Tries left %d\n",timeout);
         } while (timeout-- && (ec_slave[0].state != EC_STATE_OPERATIONAL)); // Wait for operational or timeout
+        
         if (ec_slave[0].state == EC_STATE_OPERATIONAL){
             if (verbose)printf("Operational state reached for all slaves.\n");
             inOP = TRUE;
@@ -598,6 +829,11 @@ int Master::startup(){
     return EXIT_FAILURE;
 }
 
+/** 
+ * Slave class functions uses the master class functions,
+ * this is to "call" the functions from the slave. 
+ * A preferable method in Festo.
+ */
 Slave::Slave(Master& master, int slaveNr) : master(master), slaveNr(slaveNr) {}
 
 int Slave::enable_powerstage(){
