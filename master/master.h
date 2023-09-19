@@ -13,6 +13,10 @@
 
 constexpr int EC_TIMEOUTMON = 500;
 
+/**
+ * @brief  This class is used to control the EtherCAT Master
+ * 
+ */
 class Master
 {
     typedef enum {
@@ -138,6 +142,10 @@ class Master
         std::thread cycle_thread;
  };
 
+/**
+ * @brief This class is used to call the functions of the EtherCAT Master from a slave object
+ * 
+ */
 class Slave {
     public:
         Slave(Master& master, int slaveNr);

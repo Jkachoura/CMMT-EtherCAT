@@ -6,6 +6,8 @@
 
 Simple implementation to control CMMT servodrives from Festo over EtherCAT by C++. Uses the [Simple EtherCAT Master Librabry](https://github.com/OpenEtherCATsociety/SOEM).
 
+## Documentation
+For more information see [documentation](/doc/html/index.html)
 ## Installation
 See the application note for detailed description of start up.
 ### Software used

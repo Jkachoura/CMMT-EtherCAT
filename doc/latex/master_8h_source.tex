@@ -1,0 +1,164 @@
+\doxysection{master.\+h}
+\hypertarget{master_8h_source}{}\label{master_8h_source}\index{C:/Users/admin/Desktop/Jaouad Stage/CMMT-\/EtherCAT/master/master.h@{C:/Users/admin/Desktop/Jaouad Stage/CMMT-\/EtherCAT/master/master.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ master.h\ :\ Header\ file\ for\ your\ target.}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#define\ DEBUG}}
+\DoxyCodeLine{00004\ }
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include<iostream>}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#ifndef\ INTMAX\_MAX}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\ \ \ \ \#define\ INTMAX\_MAX\ MAXINT64}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ needed\ for\ thread\ on\ some\ platforms}}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#include"{}ethercat.h"{}}}
+\DoxyCodeLine{00011\ \textcolor{preprocessor}{\#include<thread>}}
+\DoxyCodeLine{00012\ \textcolor{preprocessor}{\#include<mutex>}}
+\DoxyCodeLine{00013\ }
+\DoxyCodeLine{00014\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ EC\_TIMEOUTMON\ =\ 500;}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00020\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_master}{Master}}}
+\DoxyCodeLine{00021\ \{}
+\DoxyCodeLine{00022\ \ \ \ \ \textcolor{keyword}{typedef}\ \textcolor{keyword}{enum}\ \{}
+\DoxyCodeLine{00023\ \ \ \ \ \ \ \ \ control\_switch\_on\ =\ 0,}
+\DoxyCodeLine{00024\ \ \ \ \ \ \ \ \ control\_enable\_voltage\ =\ 1,}
+\DoxyCodeLine{00025\ \ \ \ \ \ \ \ \ control\_quick\_stop\ =\ 2,}
+\DoxyCodeLine{00026\ \ \ \ \ \ \ \ \ control\_enable\_operation\ =\ 3,}
+\DoxyCodeLine{00027\ \ \ \ \ \ \ \ \ control\_fault\_reset\ =\ 7,}
+\DoxyCodeLine{00028\ \ \ \ \ \ \ \ \ control\_4\ =\ 4,}
+\DoxyCodeLine{00029\ \ \ \ \ \ \ \ \ control\_5\ =\ 5,}
+\DoxyCodeLine{00030\ \ \ \ \ \ \ \ \ control\_6\ =\ 6,}
+\DoxyCodeLine{00031\ \ \ \ \ \ \ \ \ control\_halt\ =\ 8,}
+\DoxyCodeLine{00032\ \ \ \ \ \ \ \ \ control\_9\ =\ 9,}
+\DoxyCodeLine{00033\ \ \ \ \ \}control\_bit\_t;}
+\DoxyCodeLine{00034\ \ \ \ \ \textcolor{keyword}{typedef}\ \textcolor{keyword}{enum}\ \{}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ status\_ready\_to\_switch\_on\ =\ 0,}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ status\_switched\_on\ =\ 1,}
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \ \ status\_operation\_enabled\ =\ 2,}
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ status\_fault\ =\ 3,}
+\DoxyCodeLine{00039\ \ \ \ \ \ \ \ \ status\_voltage\_enabled\ =\ 4,}
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \ \ status\_quick\_stop\ =\ 5,}
+\DoxyCodeLine{00041\ \ \ \ \ \ \ \ \ status\_switch\_on\_disabled\ =\ 6,}
+\DoxyCodeLine{00042\ \ \ \ \ \ \ \ \ status\_warning\ =\ 7,}
+\DoxyCodeLine{00043\ \ \ \ \ \ \ \ \ status\_manfsp\ =\ 8,}
+\DoxyCodeLine{00044\ \ \ \ \ \ \ \ \ status\_remote\ =\ 9,}
+\DoxyCodeLine{00045\ \ \ \ \ \ \ \ \ status\_mc\ =\ 10,\ \textcolor{comment}{//\ motion\ complete\ /\ target\ reached\ //\ not\ jogging\ in\ jogging\ mode}}
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \ \ status\_ack\_start\ =\ 12,}
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \ \ status\_ref\_reached\ =\ 12,}
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \ \ status\_ref\ =\ 15,\ \textcolor{comment}{//drive\ homed}}
+\DoxyCodeLine{00049\ \ \ \ \ \}statusword\_bit\_t;}
+\DoxyCodeLine{00050\ \ \ \ \ \textcolor{keyword}{typedef}\ \textcolor{keyword}{enum}\ \{}
+\DoxyCodeLine{00051\ \ \ \ \ \ \ \ \ Controlword\ =\ 0,}
+\DoxyCodeLine{00052\ \ \ \ \ \ \ \ \ Statusword\ =\ 0,}
+\DoxyCodeLine{00053\ \ \ \ \ \ \ \ \ Mode\_of\_Operation\ =\ 2,}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ \ \ Mode\_of\_Operation\_Display\ =\ 2,}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \ \ Target\_Position\ =\ 3,}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \ \ Position\_Actual\_Value\ =\ 3,}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \ \ Profile\_velocity\ =\ 7,}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \ \ Target\_velocity\ =\ 11,}
+\DoxyCodeLine{00059\ \ \ \ \ \ \ \ \ Velocity\_Actual\_Value\ =\ 11,}
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \ \ Target\_Torque\ =\ 15,}
+\DoxyCodeLine{00061\ \ \ \ \ \ \ \ \ Torque\_Actual\_Value\ =\ 15,}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ Velocity\_Offset\ =\ 17,}
+\DoxyCodeLine{00063\ \ \ \ \ \ \ \ \ Torque\_Offset\ =\ 21,}
+\DoxyCodeLine{00064\ \ \ \ \ \}mapped\_PDO\_t;}
+\DoxyCodeLine{00065\ \ \ \ \ \textcolor{keyword}{typedef}\ \textcolor{keyword}{enum}\ \{}
+\DoxyCodeLine{00066\ \ \ \ \ \ \ \ \ no\_mode\ =\ 0,}
+\DoxyCodeLine{00067\ \ \ \ \ \ \ \ \ profile\_position\_mode\ =\ 1,}
+\DoxyCodeLine{00068\ \ \ \ \ \ \ \ \ velocity\_mode\ =\ 2,}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \ \ profile\_velocity\_mode\ =\ 3,}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ profile\_torque\_mode\ =\ 4,}
+\DoxyCodeLine{00071\ }
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \ \ homing\_mode\ =\ 6,}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \ \ interpolated\_position\_mode\ =\ 7,}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \ \ cyclic\_sync\_pos\_mode\ =\ 8,}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ cyclic\_sync\_vel\_mode\ =\ 9,}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ cyclic\_sync\_tor\_mode\ =\ 10,}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \ \ jog\_mode\ =\ 253,\ \textcolor{comment}{//\ uint8\ =\ 253\ ||\ int8\ =\ -\/3}}
+\DoxyCodeLine{00079\ \ \ \ \ \}Mode\_of\_Operation\_t;}
+\DoxyCodeLine{00080\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00081\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Constructor\ /\ Destructor}}
+\DoxyCodeLine{00082\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_master}{Master}}(\textcolor{keywordtype}{char}\ ifname[]\ =\ \textcolor{stringliteral}{"{}eth0"{}},\ \textcolor{keyword}{const}\ uint32\_t\ cycletime\ =\ 2000,\ \textcolor{keywordtype}{bool}\ showNonErrors\ =\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00083\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_master_a20f70958ed75532ba672af1b780f59eb}{\string~Master}}();}
+\DoxyCodeLine{00084\ }
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ status}}
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_master_a84051b3565e2293477937cf6dafbd858}{getError}}(\textcolor{keywordtype}{int}\ slaveNr);}
+\DoxyCodeLine{00087\ \ \ \ \ \ \ \ \ int16\_t\ \mbox{\hyperlink{class_master_aa19a3f2a65de161c66db1a4d05c423ae}{get16}}(\textcolor{keywordtype}{int}\ slaveNr,\ uint8\_t\ \textcolor{keywordtype}{byte});}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ \ \ int32\_t\ \mbox{\hyperlink{class_master_a850d6e717246909ab8847f27d2e8f61b}{getPos}}(\textcolor{keywordtype}{int}\ slaveNr);}
+\DoxyCodeLine{00089\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_master_aa9efda0454e4899dd0b7f2116f4b22e9}{connected}}();\ \textcolor{comment}{//\ Check\ if\ drives\ are\ ready\ to\ use\ (in\ operation\ mode)}}
+\DoxyCodeLine{00090\ }
+\DoxyCodeLine{00091\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00092\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ control}}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_master_a15b56577ba7bf7b946c8e26a31b97795}{enable\_powerstage}}(\textcolor{keywordtype}{int}\ slaveNr);}
+\DoxyCodeLine{00094\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_master_a8c2e59ae0e2996b64f0ebeec158384b5}{disable\_powerstage}}(\textcolor{keywordtype}{int}\ slaveNr);}
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_master_a4f59796deb2e5978c44824c6ff6e7657}{referencing\_task}}(\textcolor{keywordtype}{int}\ slaveNr,\textcolor{keywordtype}{bool}\ always\ =\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_master_a4d3283c0e9691eb39e92f0f367953bf8}{jog\_task}}(\textcolor{keywordtype}{int}\ slaveNr,\ \textcolor{keywordtype}{bool}\ jog\_positive,\ \textcolor{keywordtype}{bool}\ jog\_negative,\ \textcolor{keywordtype}{float}\ duration);}
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_master_a021f139615f9fe6b6395f3a3ccecf80c}{stop\_motion\_task}}(\textcolor{keywordtype}{int}\ slaveNr);}
+\DoxyCodeLine{00098\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_master_aef730ecd5e992f2bc329fa3182a00ea2}{position\_task}}(\textcolor{keywordtype}{int}\ slaveNr,\ int32\_t\ target,\ \textcolor{keywordtype}{bool}\ absolute\ =\ \textcolor{keyword}{false},\ \textcolor{keywordtype}{bool}\ nonblocking\ =\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_master_aef730ecd5e992f2bc329fa3182a00ea2}{position\_task}}(\textcolor{keywordtype}{int}\ slaveNr,\ int32\_t\ target,\ int32\_t\ velocity,\ \textcolor{keywordtype}{bool}\ absolute\ =\ \textcolor{keyword}{false},\ \textcolor{keywordtype}{bool}\ nonblocking\ =\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00100\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_master_aef730ecd5e992f2bc329fa3182a00ea2}{position\_task}}(\textcolor{keywordtype}{int}\ slaveNr,\ int32\_t\ target,\ uint32\_t\ velocity,\ \textcolor{keywordtype}{bool}\ absolute\ =\ \textcolor{keyword}{false},\ \textcolor{keywordtype}{bool}\ nonblocking\ =\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_master_aef730ecd5e992f2bc329fa3182a00ea2}{position\_task}}(\textcolor{keywordtype}{int}\ slaveNr,\ int32\_t\ target,\ uint32\_t\ velocity,\ uint32\_t\ acceleration,\ uint32\_t\ deceleration,\ \textcolor{keywordtype}{bool}\ absolute\ =\ \textcolor{keyword}{false},\ \textcolor{keywordtype}{bool}\ nonblocking\ =\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00102\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_master_acbed962c2a4830611ba311ea4a5b3b43}{wait\_for\_target\_position}}(\textcolor{keywordtype}{int}\ slaveNr);}
+\DoxyCodeLine{00103\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_master_af138a2b81e5c6e465946fb6f118385c2}{reset}}(\textcolor{keywordtype}{int}\ slaveNr);}
+\DoxyCodeLine{00104\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_master_ac2d382241ab825b6171d44c653c4685c}{waitCycle}}();\ \textcolor{comment}{//\ Wait\ for\ the\ cycle\ time}}
+\DoxyCodeLine{00105\ }
+\DoxyCodeLine{00106\ \ \ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00107\ \ \ \ \ \ \ \ \ uint32\_t\ ctime;\ \textcolor{comment}{//\ Store\ the\ cycle\ time\ in\ microseconds}}
+\DoxyCodeLine{00108\ \ \ \ \ \ \ \ \ std::mutex\ m;\ \textcolor{comment}{//\ prevent\ acces\ to\ EC\ data\ at\ the\ same\ time}}
+\DoxyCodeLine{00109\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00110\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{char}\ IOmap[4096];}
+\DoxyCodeLine{00111\ \ \ \ \ \ \ \ \ \textcolor{keyword}{volatile}\ \textcolor{keywordtype}{int}\ wkc;}
+\DoxyCodeLine{00112\ }
+\DoxyCodeLine{00113\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ inOP;}
+\DoxyCodeLine{00114\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ verbose;\ \textcolor{comment}{//\ Output\ to\ screen}}
+\DoxyCodeLine{00115\ \ \ \ \ \ \ \ \ uint8\_t\ currentgroup\ =\ 0;}
+\DoxyCodeLine{00116\ }
+\DoxyCodeLine{00117\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{char}\ mode[9];\ }
+\DoxyCodeLine{00118\ \ \ \ \ \ \ \ \ int32\_t\ target;}
+\DoxyCodeLine{00119\ }
+\DoxyCodeLine{00120\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ readyState(\textcolor{keywordtype}{int}\ slaveNr);}
+\DoxyCodeLine{00121\ }
+\DoxyCodeLine{00122\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Data\ handling}}
+\DoxyCodeLine{00123\ \ \ \ \ \ \ \ \ uint8\_t\ setBit(\textcolor{keywordtype}{int}\ slaveNr,\ uint8\_t\ bit,\ uint8\_t\ \textcolor{keywordtype}{byte}\ =\ Controlword);}
+\DoxyCodeLine{00124\ \ \ \ \ \ \ \ \ uint8\_t\ unsetBit(\textcolor{keywordtype}{int}\ slaveNr,\ uint8\_t\ bit,\ uint8\_t\ \textcolor{keywordtype}{byte}\ =\ Controlword);}
+\DoxyCodeLine{00125\ \ \ \ \ \ \ \ \ uint16\_t\ unsetControl(\textcolor{keywordtype}{int}\ slaveNr);}
+\DoxyCodeLine{00126\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ getBit(\textcolor{keywordtype}{int}\ slaveNr,\ uint8\_t\ bit,\ uint8\_t\ \textcolor{keywordtype}{byte}\ =\ Statusword);}
+\DoxyCodeLine{00127\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ setByte(\textcolor{keywordtype}{int}\ slaveNr,\ uint8\_t\ value,\ uint8\_t\ \textcolor{keywordtype}{byte}\ =\ Controlword);}
+\DoxyCodeLine{00128\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ set16(\textcolor{keywordtype}{int}\ slaveNr,\ int16\_t\ value,\ uint8\_t\ \textcolor{keywordtype}{byte});}
+\DoxyCodeLine{00129\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ setPos(\textcolor{keywordtype}{int}\ slaveNr,\ int32\_t\ target,\ uint8\_t\ \textcolor{keywordtype}{byte}\ =\ Target\_Position);}
+\DoxyCodeLine{00130\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ setProfileVelocity(\textcolor{keywordtype}{int}\ slaveNr,\ uint32\_t\ velocity,\ uint8\_t\ \textcolor{keywordtype}{byte}\ =\ Profile\_velocity);}
+\DoxyCodeLine{00131\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ \ startup();}
+\DoxyCodeLine{00132\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ cycle();\ \textcolor{comment}{//\ send\ and\ recieve\ data,\ wait\ cycletime\ }}
+\DoxyCodeLine{00133\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ \ setMode(\textcolor{keywordtype}{int}\ slaveNr,\ uint8\_t\ mode);}
+\DoxyCodeLine{00134\ }
+\DoxyCodeLine{00135\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ create\ PDO's}}
+\DoxyCodeLine{00136\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ mapCia402(uint16\_t\ slaveNr);}
+\DoxyCodeLine{00137\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00138\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Ethercat\ state}}
+\DoxyCodeLine{00139\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ setPreOp(\textcolor{keywordtype}{int}\ slaveNr);}
+\DoxyCodeLine{00140\ }
+\DoxyCodeLine{00141\ \ \ \ \ \ \ \ \ \textcolor{comment}{//Thread}}
+\DoxyCodeLine{00142\ \ \ \ \ \ \ \ \ std::thread\ cycle\_thread;}
+\DoxyCodeLine{00143\ \ \};}
+\DoxyCodeLine{00144\ }
+\DoxyCodeLine{00149\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_slave}{Slave}}\ \{}
+\DoxyCodeLine{00150\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00151\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_slave}{Slave}}(\mbox{\hyperlink{class_master}{Master}}\&\ master,\ \textcolor{keywordtype}{int}\ slaveNr);}
+\DoxyCodeLine{00152\ }
+\DoxyCodeLine{00153\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ enable\_powerstage();}
+\DoxyCodeLine{00154\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ disable\_powerstage();}
+\DoxyCodeLine{00155\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ referencing\_task(\textcolor{keywordtype}{bool}\ always\ =\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00156\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ jog\_task(\textcolor{keywordtype}{bool}\ jog\_positive,\ \textcolor{keywordtype}{bool}\ jog\_negative,\ \textcolor{keywordtype}{float}\ duration);}
+\DoxyCodeLine{00157\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ stop\_motion\_task();}
+\DoxyCodeLine{00158\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ position\_task(int32\_t\ target,\ int32\_t\ velocity,\ \textcolor{keywordtype}{bool}\ absolute\ =\ \textcolor{keyword}{false},\ \textcolor{keywordtype}{bool}\ nonblocking\ =\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00159\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ position\_task(int32\_t\ target,\ uint32\_t\ velocity,\ \textcolor{keywordtype}{bool}\ absolute\ =\ \textcolor{keyword}{false},\ \textcolor{keywordtype}{bool}\ nonblocking\ =\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00160\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ position\_task(int32\_t\ target,\ uint32\_t\ velocity,\ uint32\_t\ acceleration,\ uint32\_t\ deceleration,\ \textcolor{keywordtype}{bool}\ absolute\ =\ \textcolor{keyword}{false},\ \textcolor{keywordtype}{bool}\ nonblocking\ =\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00161\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ wait\_for\_target\_position();}
+\DoxyCodeLine{00162\ }
+\DoxyCodeLine{00163\ \ \ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00164\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_master}{Master}}\&\ master;\ \ \ \ \ \ \textcolor{comment}{//\ Reference\ to\ the\ EtherCAT\ master}}
+\DoxyCodeLine{00165\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ slaveNr;\ \ \ \ \ \textcolor{comment}{//\ The\ slave's\ number\ or\ identifier}}
+\DoxyCodeLine{00166\ \};}
+
+\end{DoxyCode}

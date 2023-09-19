@@ -1,8 +1,8 @@
 build*/
 install
 *~
-/doc/latex
-/doc/html
+# /doc/latex
+# /doc/html
 tags
 .vs/
 .vscode/
