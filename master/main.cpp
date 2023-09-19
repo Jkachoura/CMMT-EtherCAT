@@ -8,25 +8,15 @@ int main(int argc, char* argv[])
     Master ecMaster(ifaceName, 16000); 
 
     if (ecMaster.connected()){
-        for (int i = 1; i <= ec_slavecount; i++)
-        {
-            ecMaster.reset(i);  
-        }
-
         Slave drive(ecMaster, 1);
-
+        Sleep(5000);
+        drive.acknowledge_faults();
+        Sleep(5000);
         drive.enable_powerstage(); 
-        drive.referencing_task(); 
 
-        drive.position_task(-10000000, 300000, true, true); 
+        
+        
         Sleep(1000);
-        drive.position_task(10000000, 300000, true, true); 
-        Sleep(1000);
-        drive.position_task(-10000000, 300000, true, true);
-        Sleep(1000);
-        drive.position_task(10000000, 300000, true, true);
-
-        drive.wait_for_target_position();
         return EXIT_SUCCESS; 
     }
     else{

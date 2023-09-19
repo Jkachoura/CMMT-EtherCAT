@@ -148,7 +148,7 @@ uint16_t Master::unsetControl(int slaveNr){
  * @param bit Bit to get
  * @param byte Byte to start reading
  * 
- * @return Value of the bit
+ * @return true if bit is set
  */
 bool Master::getBit(int slaveNr, uint8_t bit, uint8_t byte){
     while (bit > 7){
@@ -742,6 +742,19 @@ int Master::mapCia402(uint16_t slaveNr){
     return retval;
 }
 
+/**
+ * Acknowledge faults on the slave
+ * 
+ * @param slaveNr Slave number
+ */
+void Master::acknowledge_faults(int slaveNr){
+    if (verbose)printf("Acknowledge faults on slave %d\n", slaveNr);
+    while (getError(slaveNr) != 0){
+        setBit(slaveNr, control_fault_reset);
+        waitCycle();
+        unsetBit(slaveNr, control_fault_reset);
+    }
+}
 /**
  * Configuring the slave before operational mode
  * 

@@ -102,6 +102,7 @@ class Master
         bool wait_for_target_position(int slaveNr);
         int reset(int slaveNr);
         void waitCycle(); // Wait for the cycle time
+        void acknowledge_faults(int slaveNr);
 
     private:
         uint32_t ctime; // Store the cycle time in microseconds

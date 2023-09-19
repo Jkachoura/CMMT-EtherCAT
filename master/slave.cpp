@@ -1,4 +1,5 @@
 #include "slave.h"
+
 /** 
  * Slave class functions uses the master class functions,
  * this is to "call" the functions from the slave. 
@@ -121,4 +122,8 @@ int Slave::position_task(int32_t target, uint32_t velocity, uint32_t acceleratio
  */
 bool Slave::wait_for_target_position(){
     return master.wait_for_target_position(this->slaveNr);
+}
+
+void Slave::acknowledge_faults(){
+    master.acknowledge_faults(this->slaveNr);
 }
