@@ -13,6 +13,7 @@ Slave::Slave(Master& master, int slaveNr) : master(master), slaveNr(slaveNr) {}
  * @param slaveNr Slave number
  * 
  * @return EXIT_SUCCESS or EXIT_FAILURE
+ * @see enable_powerstage from master
  */
 int Slave::enable_powerstage(){
     return master.enable_powerstage(this->slaveNr);
@@ -24,6 +25,7 @@ int Slave::enable_powerstage(){
  * @param slaveNr Slave number
  * 
  * @return EXIT_SUCCESS or EXIT_FAILURE
+ * @see disable_powerstage from master
  */
 int Slave::disable_powerstage(){
     return master.disable_powerstage(this->slaveNr);
@@ -36,6 +38,7 @@ int Slave::disable_powerstage(){
  * @param always Always perform the referencing task
  * 
  * @return EXIT_SUCCESS or EXIT_FAILURE
+ * @see referencing_task from master
  */
 int Slave::referencing_task(bool always){
     return master.referencing_task(this->slaveNr);
@@ -49,6 +52,7 @@ int Slave::referencing_task(bool always){
  * @param jog_negative Jog negative
  * @param duration Duration in seconds (0 = nonblocking)
  * 
+ * @see jog_task from master
  * @note The jogging motion stops if jog_positive and jog_negative are equal
  */
 void Slave::jog_task(bool jog_positive, bool jog_negative, float duration) {
@@ -59,6 +63,8 @@ void Slave::jog_task(bool jog_positive, bool jog_negative, float duration) {
  * Stops any currently active motion task
  * 
  * @param slaveNr Slave number
+ * 
+ * @see stop_motion_task from master
  */
 void Slave::stop_motion_task(){
     master.stop_motion_task(this->slaveNr);
@@ -119,11 +125,19 @@ int Slave::position_task(int32_t target, uint32_t velocity, uint32_t acceleratio
  * 
  * @return true 
  * @return false 
+ * @see wait_for_target_position from master
  */
 bool Slave::wait_for_target_position(){
     return master.wait_for_target_position(this->slaveNr);
 }
 
+/**
+ * Acknowledge faults
+ * 
+ * @param slaveNr Slave number
+ * 
+ * @see acknowledge_faults from master
+ */
 void Slave::acknowledge_faults(){
     master.acknowledge_faults(this->slaveNr);
 }
