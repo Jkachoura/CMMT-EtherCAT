@@ -18,6 +18,8 @@ class Slave {
         int position_task(int32_t target, uint32_t velocity, uint32_t acceleration, uint32_t deceleration, bool absolute = false, bool nonblocking = false);
         bool wait_for_target_position();
         void acknowledge_faults();
+        void write_pdo(uint16 index, uint8 subindex, void *value, int valueSize);
+        void read_pdo(uint16 index, uint8 subindex, void *value, int *valueSize);
 
     private:
         Master& master;      // Reference to the EtherCAT master
