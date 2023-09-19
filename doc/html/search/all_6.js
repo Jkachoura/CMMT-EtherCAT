@@ -1,4 +1,0 @@
-var searchData=
-[
-  ['position_5ftask_0',['position_task',['../class_master.html#aef730ecd5e992f2bc329fa3182a00ea2',1,'Master::position_task(int slaveNr, int32_t target, bool absolute=false, bool nonblocking=false)'],['../class_master.html#a3a037ca38d80bd8ec29bdcc332bbe97b',1,'Master::position_task(int slaveNr, int32_t target, int32_t velocity, bool absolute=false, bool nonblocking=false)'],['../class_master.html#abef12eb85b5801eefe79549ceaabd44b',1,'Master::position_task(int slaveNr, int32_t target, uint32_t velocity, bool absolute=false, bool nonblocking=false)'],['../class_master.html#a1080cecb3533d5b24026409528133cb2',1,'Master::position_task(int slaveNr, int32_t target, uint32_t velocity, uint32_t acceleration, uint32_t deceleration, bool absolute=false, bool nonblocking=false)']]]
-];
