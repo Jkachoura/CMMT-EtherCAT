@@ -12,9 +12,14 @@ int main(int argc, char* argv[])
         drive.enable_powerstage();
         drive.acknowledge_faults();
         
-        float32 floatValue = 0.5479;
+        float32 floatValue = 0.123;
         ecMaster.write_pdo(1, 0x2168, 4, &floatValue, sizeof(floatValue));
- 
+
+        float32 value;
+        int valueSize = sizeof(value);
+        ecMaster.read_pdo(1, 0x2168, 2, &value, &valueSize);
+        printf("Value: %f\n", value);
+        
         return EXIT_SUCCESS; 
     }
     else{

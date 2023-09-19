@@ -320,10 +320,58 @@ void Master::waitCycle(){
     std::this_thread::sleep_for(std::chrono::microseconds(this->ctime));
 }
 
+/**
+ * Write a Process Data Object (PDO) to a slave device.
+ *
+ * @param slaveNr    The slave number to write to.
+ * @param index      The index of the PDO (e.g., 0x2168).
+ * @param subindex   The subindex of the PDO.
+ * @param value      A pointer to the value to be written to the PDO.
+ * @param valueSize  The size (in bytes) of the value.
+ * 
+ * @note
+ *   To use this function, you must define the value beforehand and pass a pointer to it as the 'value' parameter.
+ *   For example:
+ *   - For a float32 value: float32 floatValue = 0.123; write_pdo(slaveNr, index, subindex, &floatValue, sizeof(floatValue));
+ *   - For an int32 value: int32_t intValue = 42; write_pdo(slaveNr, index, subindex, &intValue, sizeof(intValue));
+ *   This function sends the specified data to the slave device using CoE SDO write.
+ */
 void Master::write_pdo(uint16 slaveNr, uint16 index, uint8 subindex, void *value, int valueSize) {
-    int result = ec_SDOwrite(slaveNr, index, subindex, false, valueSize, value, EC_TIMEOUTRXM);
+    if(valueSize >= 0){
+        int result = ec_SDOwrite(slaveNr, index, subindex, false, valueSize, value, EC_TIMEOUTRXM);
     
-    if (result == 0) {
+        if (result == 0) {
+            printf("Error: %d\n", result);
+        }
+        else{
+            printf("Write successful\n");
+        }
+    }
+    else{
+        printf("Error: valueSize must be greater than 0\n");
+    }
+}
+
+/**
+ * Read a Process Data Object (PDO) from a slave device.
+ *
+ * @param slaveNr     The slave number to read from.
+ * @param index       The index of the PDO (e.g., 0x2168).
+ * @param subindex    The subindex of the PDO.
+ * @param value       A pointer to store the read value from the PDO.
+ * @param valueSize   A pointer to an integer to store the size (in bytes) of the read value.
+ * 
+ * @note
+ *   To use this function, you must provide a pointer to a buffer where the read value will be stored ('value') and a pointer to an integer ('valueSize') to store the size of the read value.
+ *   For example:
+ *   - float32 floatValue; int size; read_pdo(slaveNr, index, subindex, &floatValue, &size);
+ *   - int32_t intValue; int size; read_pdo(slaveNr, index, subindex, &intValue, &size);
+ *   This function reads the specified PDO from the slave device using CoE SDO read.
+ */
+void Master::read_pdo(uint16 slaveNr, uint16 index, uint8 subindex, void *value, int *valueSize) {
+    int result = ec_SDOread(slaveNr, index, subindex, false, valueSize, value, EC_TIMEOUTRXM);
+
+    if (result == 0){
         printf("Error: %d\n", result);
     }
     else{
