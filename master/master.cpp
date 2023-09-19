@@ -375,7 +375,7 @@ void Master::read_pdo(uint16 slaveNr, uint16 index, uint8 subindex, void *value,
         printf("Error: %d\n", result);
     }
     else{
-        printf("Write successful\n");
+        printf("Read successful\n");
     }
 }
 /**
