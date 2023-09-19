@@ -320,6 +320,16 @@ void Master::waitCycle(){
     std::this_thread::sleep_for(std::chrono::microseconds(this->ctime));
 }
 
+void Master::write_pdo(uint16 slaveNr, uint16 index, uint8 subindex, void *value, int valueSize) {
+    int result = ec_SDOwrite(slaveNr, index, subindex, false, valueSize, value, EC_TIMEOUTRXM);
+    
+    if (result == 0) {
+        printf("Error: %d\n", result);
+    }
+    else{
+        printf("Write successful\n");
+    }
+}
 /**
  * Enable the powerstage of the drive
  * 

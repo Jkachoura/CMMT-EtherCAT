@@ -103,6 +103,7 @@ class Master
         int reset(int slaveNr);
         void waitCycle(); // Wait for the cycle time
         void acknowledge_faults(int slaveNr);
+        void write_pdo(uint16 slaveNr, uint16 index, uint8 subindex, void *value, int valueSize);
 
     private:
         uint32_t ctime; // Store the cycle time in microseconds
