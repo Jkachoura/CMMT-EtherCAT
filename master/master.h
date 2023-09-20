@@ -74,8 +74,8 @@ class Master
         cyclic_sync_pos_mode = 8,
         cyclic_sync_vel_mode = 9,
         cyclic_sync_tor_mode = 10,
-        
-        jog_mode = 253, // uint8 = 253 || int8 = -3
+
+                jog_mode = 253, // uint8 = 253 || int8 = -3
     }Mode_of_Operation_t;
     public:
         // Constructor / Destructor
@@ -103,8 +103,8 @@ class Master
         int reset(int slaveNr);
         void waitCycle(); // Wait for the cycle time
         void acknowledge_faults(int slaveNr);
-        void write_pdo(uint16 slaveNr, uint16 index, uint8 subindex, void *value, int valueSize);
-        void read_pdo(uint16 slaveNr, uint16 index, uint8 subindex, void *value, int *valueSize);
+        void write_sdo(uint16 slaveNr, uint16 index, uint8 subindex, void *value, int valueSize);
+        void read_sdo(uint16 slaveNr, uint16 index, uint8 subindex, void *value, int *valueSize);
 
     private:
         uint32_t ctime; // Store the cycle time in microseconds
