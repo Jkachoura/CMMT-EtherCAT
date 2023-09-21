@@ -362,7 +362,8 @@ void Master::write_sdo(uint16 slaveNr, uint16 index, uint8 subindex, void *value
  * @param valueSize   A pointer to an integer to store the size (in bytes) of the read value.
  * 
  * @note
- *   To use this function, you must provide a pointer to a buffer where the read value will be stored ('value') and a pointer to an integer ('valueSize') to store the size of the read value.
+ *   To use this function, you must provide a pointer to a buffer where the read value will be stored ('value') 
+ *   and a pointer to an integer ('valueSize') to store the size of the read value.
  *   For example:
  *   - float32 floatValue; int size; read_sdo(slaveNr, index, subindex, &floatValue, &size);
  *   - int32_t intValue; int size; read_sdo(slaveNr, index, subindex, &intValue, &size);
