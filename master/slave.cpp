@@ -143,6 +143,20 @@ void Slave::acknowledge_faults(){
 }
 
 /**
+ * @brief Perform a preconfigured record task by providing the corresponding record number
+ * 
+ * @param slaveNr The slave number to perform the record task on
+ * @param record The record number determining the record table entry that should be
+ *               executed.
+ *
+ * @return int EXIT_SUCCESS or EXIT_FAILURE
+ * @see record_task from master
+ */
+int Slave::record_task(int32_t record){
+    return master.record_task(this->slaveNr, record);
+}
+
+/**
  * Write a Process Data Object (SDO) to a slave device.
  *
  * @param slaveNr    The slave number to write to.

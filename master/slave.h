@@ -18,6 +18,7 @@ class Slave {
         int position_task(int32_t target, uint32_t velocity, uint32_t acceleration, uint32_t deceleration, bool absolute = false, bool nonblocking = false);
         bool wait_for_target_position();
         void acknowledge_faults();
+        int record_task(int32_t record);
         void write_sdo(uint16 index, uint8 subindex, void *value, int valueSize);
         void read_sdo(uint16 index, uint8 subindex, void *value, int *valueSize);
 
