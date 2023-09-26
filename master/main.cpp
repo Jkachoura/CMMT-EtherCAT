@@ -1,32 +1,26 @@
 #include "master.h" 
 #include "slave.h"
 
-void thread_function(Slave& drive){
+char ifaceName[] = "\\Device\\NPF_{A00D620E-09CB-4317-9A0F-4DAAD76B366E}"; // Your network interface name here
+    
+Master ecMaster(ifaceName, 8000); 
 
-    drive.enable_powerstage();
-    drive.acknowledge_faults();
-    drive.referencing_task();
+void thread_function(int slave_number){
+    ecMaster.acknowledge_faults(slave_number);
+    ecMaster.enable_powerstage(slave_number);
+    ecMaster.referencing_task(slave_number);
 
-    drive.position_task(20000000, 100000, true);
-    drive.position_task(-5000000, 10000, false);
+    ecMaster.record_task(slave_number, 2);
 }
 
-int main(int argc, char* argv[])
-{
-    char ifaceName[] = "\\Device\\NPF_{A00D620E-09CB-4317-9A0F-4DAAD76B366E}"; // Your network interface name here
-
-    Master ecMaster(ifaceName, 8000); 
-
+int main(int argc, char* argv[]){
     if (ecMaster.connected()){
-        Slave drive(ecMaster, 1);
-        Slave drive2(ecMaster, 2);
+        std::thread t1(thread_function, 1);
+        std::thread t2(thread_function, 2);
 
-        std::thread thread1(thread_function, std::ref(drive));
-        std::thread thread2(thread_function, std::ref(drive2));
-
-        thread1.join();
-        thread2.join();
-
+        t1.join();
+        t2.join();
+    
         return EXIT_SUCCESS; 
     }
     else{

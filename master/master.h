@@ -42,9 +42,10 @@ class Master
         status_warning = 7,
         status_manfsp = 8,
         status_remote = 9,
-        status_mc = 10, // motion complete / target reached // not jogging in jogging mode
+        status_mc = 10, // motion complete / target reached // not jogging in jogging mode // record sequence complete
         status_ack_start = 12,
         status_ref_reached = 12,
+        status_rc = 13, // individual record complete
         status_ref = 15, //drive homed
     }statusword_bit_t;
     typedef enum {
@@ -75,7 +76,9 @@ class Master
         cyclic_sync_vel_mode = 9,
         cyclic_sync_tor_mode = 10,
 
-                jog_mode = 253, // uint8 = 253 || int8 = -3
+        record_mode = 236, //int8 = -20 || uint8 = 236
+
+        jog_mode = 253, // uint8 = 253 || int8 = -3
     }Mode_of_Operation_t;
     public:
         // Constructor / Destructor
@@ -86,6 +89,7 @@ class Master
         int getError(int slaveNr);
         int16_t get16(int slaveNr, uint8_t byte);
         int32_t getPos(int slaveNr);
+        int32_t getRec(int slaveNr);
         bool connected(); // Check if drives are ready to use (in operation mode)
 
         
@@ -95,6 +99,7 @@ class Master
         int referencing_task(int slaveNr,bool always = true);
         void jog_task(int slaveNr, bool jog_positive, bool jog_negative, float duration);
         void stop_motion_task(int slaveNr);
+        int record_task(int slaveNr, int32_t record);
         int position_task(int slaveNr, int32_t target, bool absolute = false, bool nonblocking = false);
         int position_task(int slaveNr, int32_t target, int32_t velocity, bool absolute = false, bool nonblocking = false);
         int position_task(int slaveNr, int32_t target, uint32_t velocity, bool absolute = false, bool nonblocking = false);
@@ -131,6 +136,7 @@ class Master
         void set16(int slaveNr, int16_t value, uint8_t byte);
         void setPos(int slaveNr, int32_t target, uint8_t byte = Target_Position);
         void setProfileVelocity(int slaveNr, uint32_t velocity, uint8_t byte = Profile_velocity);
+        void setRec(int slaveNr, int32_t record);
         int  startup();
         void cycle(); // send and recieve data, wait cycletime 
         int  setMode(int slaveNr, uint8_t mode);

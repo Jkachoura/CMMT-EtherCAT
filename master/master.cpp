@@ -1,4 +1,4 @@
-﻿// master.cpp : Source file for your target.
+// master.cpp : Source file for your target.
 
 #include "master.h"
 
@@ -225,6 +225,20 @@ int32_t Master::getPos(int slaveNr){
 }
 
 /**
+ * Get the record number that currently is being executed
+ * 
+ * @param slaveNr Slave number
+ * 
+ * @return record number
+ */
+int32_t Master::getRec(int slaveNr){
+    int retVal = 0;
+    int retvalSize = sizeof(retVal);
+    int wc = ec_SDOread(slaveNr, 0x216F, 0x14, false, &retvalSize, &retVal, EC_TIMEOUTRXM);
+    return retVal;
+}
+
+/**
  * Startup function for the EtherCat Master
  */
 bool Master::connected(){
@@ -270,6 +284,19 @@ void Master::setProfileVelocity(int slaveNr, uint32_t velocity, uint8_t byte){
     *(ec_slave[slaveNr].outputs + byte + 2) = (velocity >> 16) & 0xFF;
     *(ec_slave[slaveNr].outputs + byte + 1) = (velocity >> 8) & 0xFF;
     *(ec_slave[slaveNr].outputs + byte + 0) = velocity & 0xFF;
+    m.unlock();
+}
+
+/**
+ * @brief Set the Record number 
+ * 
+ * @param slaveNr Slave number
+ * @param record The record you want to excute
+ */
+void Master::setRec(int slaveNr, int32_t record){
+    m.lock();
+    // Record number that is to be started is selecte via the Next record table index (0x216F.14)
+    write_sdo(slaveNr, 0x216F, 0x14, &record, sizeof(record));
     m.unlock();
 }
 
@@ -521,7 +548,7 @@ void Master::jog_task(int slaveNr, bool jog_positive, bool jog_negative, float d
  * @param slaveNr Slave number
  */
 void Master::stop_motion_task(int slaveNr){
-    if (verbose)printf("Stopping Jog movement\n");
+    if (verbose)printf("Stopping Movement\n");
     if (readyState(slaveNr)){
         unsetControl(slaveNr);
         while (!getBit(slaveNr, status_mc)) waitCycle();
@@ -704,6 +731,48 @@ void Master::cycle(){
     }
 }
 
+
+/**
+ * @brief Perform a preconfigured record task by providing the corresponding record number
+ * 
+ * @param slaveNr The slave number to perform the record task on
+ * @param record The record number determining the record table entry that should be
+ *               executed.
+ *
+ * @return int EXIT_SUCCESS or EXIT_FAILURE
+ */
+int Master::record_task(int slaveNr, int32_t record){
+    if(verbose)printf("Starting Record task: %d on Slave: %d\n", record, slaveNr);
+
+    if(readyState(slaveNr)){
+        setMode(slaveNr, record_mode); // Set mode to record mode
+        unsetControl(slaveNr);
+        setRec(slaveNr, record); // Set record
+        waitCycle();
+        unsetBit(slaveNr, control_halt); // Bit 8 (Stop task) Must be 0 for record to be excuted
+        
+        // Bit 4 (Start task) To start the record
+        setBit(slaveNr, control_4); 
+
+        // Bit 12 (Acknowledge new command) Wait till new command is acknowledged
+        while(!getBit(slaveNr, status_ack_start));
+        // Bit 10 (Motion complete) Wait till motion is complete
+        while(!getBit(slaveNr, status_mc)){ 
+            //print current record number
+            if(verbose)printf("Record task: %d is being excuted on Slave %d\r", getRec(slaveNr), slaveNr);
+            unsetControl(slaveNr);
+        }
+
+        if(verbose)printf("Record task %d completed\n", record);
+
+        return EXIT_SUCCESS;
+    }
+    else{
+        printf("Drive %d not enabled, movement not possible\n", slaveNr);
+    }
+    return EXIT_FAILURE;
+}
+
 /**
  * Set the mode of the drive
  * 
@@ -774,9 +843,8 @@ int Master::mapCia402(uint16_t slaveNr){
         bool ca;
     } configSteps[] = {
         {0x212E, 2, sizeof(ctimeInSeconds), &ctimeInSeconds, false}, // Everything cycle time related (should be checked)
-        {0x1600, 1, sizeof(pdoOutput), pdoOutput, true}, // Step set Output PDOs
         {0x1600, 0, sizeof(pdoOutputLength), &pdoOutputLength, false},  // Write amount of parameters for output
-        {0x1a00, 1, sizeof(pdoInput), pdoInput, true}, // Step set Input PDOs 
+        {0x1600, 1, sizeof(pdoOutput), pdoOutput, true}, // Step set Output PDOs
         {0x1a00, 0, sizeof(pdoInputLength), &pdoInputLength, false}, // Write amount of parameters for input
         {0x1c12, 1, sizeof(value16_1), &value16_1, false}, // Step 1 confirming Jurgen Seymoutir explination
         {0x1c13, 1, sizeof(value16_2), &value16_2, false},// Step 2 
