@@ -157,6 +157,21 @@ int Slave::record_task(int32_t record){
 }
 
 /**
+ * @brief Perform a velocity task with given velocity and duration
+ * 
+ * @param slaveNr The slave number to perform the velocity task on
+ * @param velocity The velocity to be performed
+ * @param duration The duration of the velocity task
+ *                 A duration of 0 starts the task and returns immediately.
+ * 
+ * @return int EXIT_SUCCESS or EXIT_FAILURE
+ * @see velocity_task from master
+ */
+int Slave::velocity_task(int32_t velocity, float duration){
+    return master.velocity_task(this->slaveNr, velocity, duration);
+}
+
+/**
  * Write a Process Data Object (SDO) to a slave device.
  *
  * @param slaveNr    The slave number to write to.

@@ -10,11 +10,16 @@ int main(int argc, char* argv[]){
         Slave slave1(ecMaster, 1);
         Slave slave2(ecMaster, 2);
 
-        ecMaster.acknowledge_faults(1);
-        ecMaster.enable_powerstage(1);
-        ecMaster.referencing_task(1);
+        slave1.acknowledge_faults();
+        slave1.enable_powerstage();
+        slave1.referencing_task();
 
-        ecMaster.velocity_task(1, 1000000);
+        slave2.acknowledge_faults();
+        slave2.enable_powerstage();
+        slave2.referencing_task();
+
+        slave2.velocity_task(100000, 5);
+
     
         return EXIT_SUCCESS; 
     }

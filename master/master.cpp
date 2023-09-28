@@ -272,6 +272,21 @@ void Master::setPos(int slaveNr, int32_t target, uint8_t byte ){
 }
 
 /**
+ * @brief Set velocity target
+ * 
+ * @param slaveNr 
+ * @param velocity 
+ */
+void Master::setTargetVelocity(int slaveNr, uint32_t velocity, uint8_t byte){
+    m.lock();
+    *(ec_slave[slaveNr].outputs + byte + 3) = (velocity >> 24) & 0xFF;
+    *(ec_slave[slaveNr].outputs + byte + 2) = (velocity >> 16) & 0xFF;
+    *(ec_slave[slaveNr].outputs + byte + 1) = (velocity >> 8) & 0xFF;
+    *(ec_slave[slaveNr].outputs + byte + 0) = velocity & 0xFF;
+    m.unlock();
+}
+
+/**
  * Set the profile velocity
  * 
  * @param slaveNr Slave number
@@ -774,6 +789,52 @@ int Master::record_task(int slaveNr, int32_t record){
 }
 
 /**
+ * @brief Perform a velocity task with the given parameters using setup mode.
+ * 
+ * @param slaveNr Slave number
+ * @param velocity Velocity setpoint in user units
+ * @param duration Optional duration in seconds. 
+ *                 A duration of 0 starts the task and returns immediately.
+ * 
+ * @return int EXIT_SUCCESS or EXIT_FAILURE
+ */
+int Master::velocity_task(int slaveNr, int32_t velocity, float duration){
+    if(verbose)printf("Starting velocity task: %d on Slave: %d\n", velocity, slaveNr);
+    if(readyState(slaveNr)){
+        setMode(slaveNr, profile_velocity_mode);
+        setTargetVelocity(slaveNr, velocity);
+        waitCycle();
+        unsetBit(slaveNr, control_halt);
+
+        while(!getBit(slaveNr, status_mc)){
+            if(getBit(slaveNr, status_rc)){
+                printf("Slave %d: Error following velocity limit reached\n", slaveNr);
+                return EXIT_FAILURE;
+            }
+            else if(getBit(slaveNr, status_mc)){
+                printf("Slave %d: Velocity Reached\n", slaveNr);
+                break;
+            }
+            if(verbose)printf("Velocity task: %d is being excuted on Slave %d\r", velocity, slaveNr);
+        }
+        //print new line
+        printf("\n");
+        unsetBit(slaveNr, control_halt);
+        if (duration > 0) {
+            std::this_thread::sleep_for(std::chrono::milliseconds((int) (duration * 1000)));
+            stop_motion_task(slaveNr);
+            if(verbose)printf("Velocity task %d completed\n", velocity);
+        }
+        return EXIT_SUCCESS;
+
+    }
+    else{
+        printf("Drive %d not enabled, movement not possible\n", slaveNr);
+        return EXIT_FAILURE;
+    }
+}
+
+/**
  * Set the mode of the drive
  * 
  * @param slaveNr Slave number
@@ -967,44 +1028,4 @@ int Master::startup(){
     }
 
     return EXIT_FAILURE;
-}
-
-void Master::setTargetVelocity(int slaveNr, uint32_t velocity, uint8_t byte){
-    m.lock();
-    *(ec_slave[slaveNr].outputs + byte + 3) = (velocity >> 24) & 0xFF;
-    *(ec_slave[slaveNr].outputs + byte + 2) = (velocity >> 16) & 0xFF;
-    *(ec_slave[slaveNr].outputs + byte + 1) = (velocity >> 8) & 0xFF;
-    *(ec_slave[slaveNr].outputs + byte + 0) = velocity & 0xFF;
-    m.unlock();
-}
-
-int Master::velocity_task(int slaveNr, int32_t velocity){
-    if(verbose)printf("Starting velocity task: %d on Slave: %d\n", velocity, slaveNr);
-    if(readyState(slaveNr)){
-        setMode(slaveNr, profile_velocity_mode);
-        unsetControl(slaveNr);
-        setTargetVelocity(slaveNr, velocity);
-        waitCycle();
-        unsetBit(slaveNr, control_halt);
-
-        while(!getBit(slaveNr, status_mc)){
-            if(getBit(slaveNr, status_rc)){
-                printf("Slave %d: Error following velocity limit reached\n", slaveNr);
-                return EXIT_FAILURE;
-            }
-            else if(getBit(slaveNr, status_mc)){
-                printf("Slace %d: Velocity Reached\n", slaveNr);
-                break;
-            }
-        }
-
-        setBit(slaveNr, control_halt);
-        if(verbose)printf("Velocity task %d completed\n", velocity);
-        return EXIT_SUCCESS;
-
-    }
-    else{
-        printf("Drive %d not enabled, movement not possible\n", slaveNr);
-        return EXIT_FAILURE;
-    }
 }
