@@ -172,7 +172,7 @@ int Slave::velocity_task(int32_t velocity, float duration){
 }
 
 /**
- * Write a Process Data Object (SDO) to a slave device.
+ * Write on a Service Data Object (SDO) from a slave device.
  *
  * @param slaveNr    The slave number to write to.
  * @param index      The index of the SDO (e.g., 0x2168).
@@ -194,7 +194,7 @@ void Slave::write_sdo(uint16 index, uint8 subindex, void *value, int valueSize){
 }
 
 /**
- * Read a Process Data Object (SDO) from a slave device.
+ * Read a Service Data Object (SDO) from a slave device.
  *
  * @param slaveNr     The slave number to read from.
  * @param index       The index of the SDO (e.g., 0x2168).
