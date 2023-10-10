@@ -9,8 +9,6 @@ The project at hand is a straightforward implementation designed to facilitate t
 This application serves as a bridge between a computer system and CMMT servodrives from Festo, allowingcontrol of servomotors. It empowers users to operate various automation systems, such as gantry systems and linear robots, directly from a PC instead of relying on a traditional Programmable Logic Controller (PLC).
 
 ## Table of Contents
-- [CMMT EtherCAT controlled by C++](#cmmt-ethercat-controlled-by-c)
-  - [Table of Contents](#table-of-contents)
   - [Installation](#installation)
     - [Software used](#software-used)
     - [Guide](#guide)
