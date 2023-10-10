@@ -341,28 +341,13 @@ int main(int argc, char* argv[]){
         int size = sizeof(original_value);
         ecSlave.read_sdo(0x2168, 0x04, &original_value, &size);
 
-        // Print in terminal the original value
-        std::cout << "Original Torque upper limit value: " << original_value << std::endl;
-
         // Configure a different torque upper limit value
         float32 new_value = 0.6720;
         ecSlave.write_sdo(0x2168, 0x04, &new_value, sizeof(new_value));
 
-        // Read the new torque upper limit value
-        float32 read_value;
-        int sizer = sizeof(read_value);
-        ecSlave.read_sdo(0x2168, 0x04, &read_value, &sizer);
-
-        // Print in terminal the new value
-        std::cout << "New Torque upper limit value: " << read_value << std::endl;
-
         // Restore the original value
         ecSlave.write_sdo(0x2168, 0x04, &original_value, sizeof(original_value));
-
-        // Print in terminal the original value again
-        std::cout << "Original Torque upper limit value: " << original_value << std::endl;
-        
-
+    
         return EXIT_SUCCESS;
     }
     else{
