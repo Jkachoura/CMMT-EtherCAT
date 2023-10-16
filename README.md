@@ -35,7 +35,7 @@ Make sure you have the following software versions installed:
 
 - [Pcap 1.76](https://npcap.com/#download): Install Pcap for network packet capture.
 
-- [Festo Automation Suite](https://www.festo.com/net/en-gb_gb/SupportPortal/Details/686274/Download/0/): Required for configuration of the Fieldbus
+- [Festo Automation Suite](https://www.festo.com/ca/en/search/?tab=SUPPORT_PORTAL&q=festo+automation+suite-&documentTypeGroup=SOFTWARE&documentTypes=): Required for configuration of the Fieldbus
 
 ### Guide
 
@@ -79,7 +79,7 @@ Slave slave3(ecMaster, 3);
 | acknowledge_faults() | Acknowledge faults of the drive | 
 | jog_task(bool jog_positive, bool jog_negative, float duration) | Perform a jogging task with given duration | 
 | stop_motion_task() | Stops any currently active motion task | 
-| int position_task(int32_t target, uint32_t velocity, bool absolute, bool nonblocking) | Position task with velocity | 
+| position_task(int32_t target, uint32_t velocity, bool absolute, bool nonblocking) | Position task with velocity | 
 | position_task(int32_t target, uint32_t velocity, uint32_t acceleration, uint32_t deceleration, bool absolute, bool nonblocking) | Position task with acceleration and deceleration | 
 | wait_for_target_position() |  Wait for the target position to be reached |
 | record_task(int32_t record) | Perform a preconfigured record task by providing the corresponding record number |
