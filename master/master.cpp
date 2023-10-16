@@ -246,7 +246,7 @@ bool Master::connected(){
 }
 
 /**
- * Startup function for the EtherCat Master
+ * Set a value of 16 bits
  */
 void Master::set16(int slaveNr, int16_t value, uint8_t byte){
     m.lock();
@@ -622,6 +622,7 @@ int Master::position_task(int slaveNr, int32_t target, bool absolute, bool nonbl
             if (verbose)printf("Move slave %d %s : %d %d\r", slaveNr, mode, target, getPos(slaveNr));
             unsetControl(slaveNr);
         }
+        if (verbose)printf("\n");
         if (verbose)printf(" completed\n");
         return EXIT_SUCCESS;
     }
@@ -716,6 +717,7 @@ bool Master::wait_for_target_position(int slaveNr) {
         }
         unsetControl(slaveNr);
     }
+    if (verbose)printf("\n");
     return TRUE;
 }
 
@@ -778,7 +780,7 @@ int Master::record_task(int slaveNr, int32_t record){
             unsetControl(slaveNr);
         }
 
-        if(verbose)printf("Record task %d completed\n", record);
+        if(verbose)printf("\nRecord task %d completed\n", record);
 
         return EXIT_SUCCESS;
     }
@@ -817,8 +819,7 @@ int Master::velocity_task(int slaveNr, int32_t velocity, float duration){
             }
             if(verbose)printf("Velocity task: %d is being excuted on Slave %d\r", velocity, slaveNr);
         }
-        //print new line
-        printf("\n");
+        if(verbose)printf("\n");
         unsetBit(slaveNr, control_halt);
         if (duration > 0) {
             std::this_thread::sleep_for(std::chrono::milliseconds((int) (duration * 1000)));
@@ -1029,3 +1030,66 @@ int Master::startup(){
 
     return EXIT_FAILURE;
 }
+
+
+
+// Torque mode not implemented
+// =================================================================================================
+// void Master::set8(int slaveNr, int8_t value, uint8_t byte) {
+//     m.lock();
+//     *(ec_slave[slaveNr].outputs + byte) = value;
+//     m.unlock();
+// }
+
+// void Master::set32(int slaveNr, float32 value, uint8_t byte){
+//     m.lock();
+//     int floatAsInt = static_cast<int>(value);
+//     *(ec_slave[slaveNr].outputs + byte + 3) = (floatAsInt >> 24) & 0xFF;
+//     *(ec_slave[slaveNr].outputs + byte + 2) = (floatAsInt >> 16) & 0xFF;
+//     *(ec_slave[slaveNr].outputs + byte + 1) = (floatAsInt >> 8) & 0xFF;
+//     *(ec_slave[slaveNr].outputs + byte + 0) = floatAsInt & 0xFF;
+//     m.unlock();
+// }
+
+// void Master::setTorSlo(int slaveNr, int8 torque, uint32 slope){
+//     // Record number that is to be started is selecte via the Next record table index (0x216F.14)
+//     write_sdo(slaveNr, 0x6071, 0x00, &torque, sizeof(torque));
+//     waitCycle();
+//     write_sdo(slaveNr, 0x6081, 0x00, &slope, sizeof(slope));
+//     waitCycle();
+// }
+
+// float32 Master::getTor(int slaveNr){
+//     float32 torque;
+//     int size = sizeof(torque);
+//     read_sdo(slaveNr, 0x6071, 0x00, &torque, &size);
+//     return torque;
+// }
+
+// int Master::torque_task(int slaveNr, int8_t target, uint32 slope){
+//     if (verbose)printf("Starting torque task with torque %d and slope %d on Slave: %d\n", target, slope, slaveNr);
+//     if(readyState(slaveNr)){
+//         setMode(slaveNr, profile_torque_mode);
+//         unsetControl(slaveNr);
+//         set8(slaveNr, target, Target_Torque);
+//         waitCycle();
+//         unsetBit(slaveNr, control_halt);
+//         while(getBit(slaveNr, control_halt));
+//         while(!getBit(slaveNr, status_mc)){
+//             if(verbose)printf("Torque task: %d is being excuted on Slave %d\r", target, slaveNr);
+//         }
+//         printf("\n");
+//         if(getBit(slaveNr, status_mc)){
+//             setBit(slaveNr, control_halt);
+//             printf("Slave %d: Torque Reached\n", slaveNr);
+//             return EXIT_SUCCESS;
+//         }
+//         else{
+//             printf("Slave %d: Error following torque limit reached\n", slaveNr);
+//             return EXIT_FAILURE;
+//         }
+//     }
+//     if(verbose)printf("Drive not enabled, movement not possible\n");
+//     return EXIT_FAILURE;
+
+// }

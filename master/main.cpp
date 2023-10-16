@@ -1,29 +1,27 @@
-#include "master.h" 
+#include "master.h"
 #include "slave.h"
 
-char ifaceName[] = "\\Device\\NPF_{A00D620E-09CB-4317-9A0F-4DAAD76B366E}"; // Your network interface name here
-    
-Master ecMaster(ifaceName, 8000); 
+int main(int argc, char* argv[]) {
+    // Your network interface name here
+    char ifaceName[] = "\\Device\\NPF_{A00D620E-09CB-4317-9A0F-4DAAD76B366E}";
+    Master ecMaster(ifaceName, 8000);
 
-int main(int argc, char* argv[]){
-    if (ecMaster.connected()){
-        Slave slave1(ecMaster, 1);
-        Slave slave2(ecMaster, 2);
+    if (ecMaster.connected()) {
+        Slave ecSlave(ecMaster, 1);
 
-        slave1.acknowledge_faults();
-        slave1.enable_powerstage();
-        slave1.referencing_task();
+        ecSlave.acknowledge_faults();
+        ecSlave.enable_powerstage();
+        ecSlave.referencing_task();
 
-        slave2.acknowledge_faults();
-        slave2.enable_powerstage();
-        slave2.referencing_task();
+        // Relative
+        ecSlave.position_task(100000, 600000);
+        ecSlave.position_task(-50000, 50000);
+        // Absolute
+        ecSlave.position_task(300000, 600000, true);
 
-        slave2.velocity_task(100000, 5);
-
-    
-        return EXIT_SUCCESS; 
+        return EXIT_SUCCESS;
     }
-    else{
+    else {
         return EXIT_FAILURE;
     }
 }

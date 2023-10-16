@@ -25,7 +25,7 @@ This application serves as a bridge between a computer system and CMMT servodriv
       - [SDO Access](#sdo-access)
 
 ## Installation
-See the [Application Note](ApplicationNoteCMMTwithCcpp%23100337-V1.10.pdf) for detailed description of start up.
+See the [Application Note](ApplicationNoteCMMTwithCcpp%23100338-V1.11.pdf) for detailed description of start up.
 ### Software used
 The test was conducted on the CMMT-AS-C2-3A-MP-S1 servodrive 
 
