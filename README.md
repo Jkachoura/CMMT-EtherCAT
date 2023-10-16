@@ -35,7 +35,7 @@ Make sure you have the following software versions installed:
 
 - [Pcap 1.76](https://npcap.com/#download): Install Pcap for network packet capture.
 
-- [Festo Automation Suite](https://www.festo.com/net/en-gb_gb/SupportPortal/Details/686274/Download/0/): Required for configuration of the Fieldbus
+- [Festo Automation Suite]([https://www.festo.com/net/en-gb_gb/SupportPortal/Details/686274/Download/0/](https://www.festo.com/ca/en/search/?tab=SUPPORT_PORTAL&q=festo+automation+suite-&documentTypeGroup=SOFTWARE&documentTypes=)): Required for configuration of the Fieldbus
 
 ### Guide
 
