@@ -6,7 +6,7 @@
 
 The project at hand is a straightforward implementation designed to facilitate the control of CMMT servodrives from Festo through EtherCAT using the C++ programming language. It leverages the [Simple EtherCAT Master Librabry](https://github.com/OpenEtherCATsociety/SOEM) for seamless communication with these servodrives.
 
-This application serves as a bridge between a computer system and CMMT servodrives from Festo, allowingcontrol of servomotors. It empowers users to operate various automation systems, such as gantry systems and linear robots, directly from a PC instead of relying on a traditional Programmable Logic Controller (PLC).
+This application serves as a bridge between a computer system and CMMT servodrives from Festo, allowing control of servomotors. It empowers users to operate various automation systems, such as gantry systems and linear robots, directly from a PC instead of relying on a traditional Programmable Logic Controller (PLC).
 
 ## Table of Contents
   - [Installation](#installation)
