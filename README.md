@@ -39,7 +39,7 @@ Make sure you have the following software versions installed:
 
 ### Guide
 
-**Note** Ensure that when using an MP servodrive, the fieldbus configuration is set to EtherCAT. This can be achieved by establishing a connection between your servodrive and the Festo Automation Suite. For detailed instructions, please consult the specific servodrive's user guide.
+**Note** Ensure that when using a MP servodrive, the fieldbus configuration is set to EtherCAT. This can be achieved by establishing a connection between your servodrive and the Festo Automation Suite. For detailed instructions, please consult the specific servodrive's user guide.
 
 1. Clone the repository
 ```bash
