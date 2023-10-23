@@ -222,7 +222,7 @@ int main(int argc, char* argv[]){
     char ifaceName[] = "\\Device\\NPF_{A00D620E-09CB-4317-9A0F-4DAAD76B366E}";
     Master ecMaster(ifaceName, 8000);
     if (ecMaster.connected()){
-        Slave ecSlave(ecMaster, 2);
+        Slave ecSlave(ecMaster, 1);
 
         ecSlave.acknowledge_faults();
         ecSlave.enable_powerstage();
@@ -249,7 +249,7 @@ int main(int argc, char* argv[]){
     char ifaceName[] = "\\Device\\NPF_{A00D620E-09CB-4317-9A0F-4DAAD76B366E}";
     Master ecMaster(ifaceName, 8000);
     if (ecMaster.connected()){
-        Slave ecSlave(ecMaster, 2);
+        Slave ecSlave(ecMaster, 1);
 
         ecSlave.acknowledge_faults();
         ecSlave.enable_powerstage();
@@ -282,7 +282,7 @@ int main(int argc, char* argv[]){
     char ifaceName[] = "\\Device\\NPF_{A00D620E-09CB-4317-9A0F-4DAAD76B366E}";
     Master ecMaster(ifaceName, 8000);
     if (ecMaster.connected()){
-        Slave ecSlave(ecMaster, 2);
+        Slave ecSlave(ecMaster, 1);
 
         ecSlave.acknowledge_faults();
         ecSlave.enable_powerstage();
@@ -305,7 +305,7 @@ int main(int argc, char* argv[]){
     char ifaceName[] = "\\Device\\NPF_{A00D620E-09CB-4317-9A0F-4DAAD76B366E}";
     Master ecMaster(ifaceName, 8000);
     if (ecMaster.connected()){
-        Slave ecSlave(ecMaster, 2);
+        Slave ecSlave(ecMaster, 1);
 
         ecSlave.acknowledge_faults();
         ecSlave.enable_powerstage();
@@ -333,7 +333,7 @@ int main(int argc, char* argv[]){
     char ifaceName[] = "\\Device\\NPF_{A00D620E-09CB-4317-9A0F-4DAAD76B366E}";
     Master ecMaster(ifaceName, 8000);
     if (ecMaster.connected()){
-        Slave ecSlave(ecMaster, 2);
+        Slave ecSlave(ecMaster, 1);
 
         // Read Torque upper limit value
         // Define buffer to store the value and its size
