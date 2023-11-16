@@ -1,4 +1,6 @@
 ﻿// master.h : Header file for your target.
+#ifndef MASTER_H
+#define MASTER_H
 
 #define DEBUG
 
@@ -151,4 +153,6 @@ class Master
 
         //Thread
         std::thread cycle_thread;
- };
+};
+
+#endif // MASTER_H

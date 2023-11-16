@@ -1,3 +1,6 @@
+#ifndef SLAVE_H
+#define SLAVE_H
+
 #include "master.h"
 
 /**
@@ -27,3 +30,5 @@ class Slave {
         Master& master;      // Reference to the EtherCAT master
         int slaveNr;     // The slave's number or identifier
 };
+
+#endif // SLAVE_H
